@@ -1,0 +1,22 @@
+{
+  "name": "akshaya-milan",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Akshaya Milan — wedding venue website with Supabase backend, admin dashboard and visitor analytics",
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "check": "node scripts/check-build.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "test:integration": "node scripts/test-integration.mjs"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.6",
+    "exceljs": "^4.4.0"
+  },
+  "devDependencies": {
+    "@vercel/edge": "^1.1.2"
+  }
+}

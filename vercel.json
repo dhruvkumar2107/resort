@@ -1,12 +1,10 @@
 {
   "buildCommand": "echo 'Static site - no build needed'",
-  "devCommand": "echo 'Static site - no dev server needed'",
-  "installCommand": "echo 'No dependencies'",
-  "outputDirectory": ".",
   "framework": null,
+  "outputDirectory": ".",
   "rewrites": [
     {
-      "source": "/(.*)",
+      "source": "/((?!api).*)",
       "destination": "/$1"
     }
   ],

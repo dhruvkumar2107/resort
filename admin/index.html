@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Dashboard | Akshaya Milan Admin</title>
+  <link rel="icon" href="/assets/images/brand/logo.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/admin/css/admin.css" />
+</head>
+<body>
+  <header class="admin-topbar">
+    <button class="burger" id="burger" aria-label="Toggle menu" aria-expanded="false"></button>
+    <a class="brand" href="/admin/index.html">
+      <img src="/assets/images/brand/logo-emblem.png" alt="Akshaya Milan" />
+      <span><span class="brand-name">Akshaya Milan</span><span class="brand-sub">Admin Console</span></span>
+    </a>
+    <span class="spacer"></span>
+    <div class="admin-who">
+      <span id="who-name" class="who-name"></span>
+      <span id="who-role" class="rolechip"></span>
+    </div>
+    <button class="btn btn-outline btn-sm" id="logout-btn" style="border-color:rgba(233,221,200,.4);color:var(--am-beige)">Sign Out</button>
+  </header>
+
+  <div class="admin-scrim" id="scrim"></div>
+
+  <div class="admin-layout">
+    <aside class="admin-sidebar" id="sidebar">
+      <nav id="nav" role="navigation" aria-label="Admin sections"></nav>
+      <div class="nav-footer">
+        <p style="margin:0 0 4px">Akshaya Milan · Private console</p>
+        <p style="margin:0">Analyse · Respond · Celebrate</p>
+      </div>
+    </aside>
+
+    <main class="admin-main" id="main">
+      <div class="loading" id="boot-loading">Loading your console…</div>
+      <section class="view" id="view-overview"></section>
+      <section class="view" id="view-analytics"></section>
+      <section class="view" id="view-enquiries"></section>
+      <section class="view" id="view-reports"></section>
+      <section class="view" id="view-team"></section>
+      <section class="view" id="view-settings"></section>
+    </main>
+  </div>
+
+  <div class="drawer-scrim" id="drawer-scrim"></div>
+  <aside class="drawer" id="enquiry-drawer" aria-label="Enquiry details">
+    <div class="drawer-head">
+      <h3>Enquiry details</h3>
+      <button class="drawer-close" id="drawer-close" aria-label="Close">×</button>
+    </div>
+    <div class="drawer-body" id="drawer-body"></div>
+  </aside>
+
+  <div class="toast-zone" id="toasts"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <script src="/admin/js/admin.js"></script>
+</body>
+</html>

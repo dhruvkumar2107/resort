@@ -1747,3 +1747,41 @@ body.nav-open { overflow: hidden; }
   :root { --pad: 1.1rem; }
   h1 { font-size: clamp(2.2rem, 9vw, 3rem); }
 }
+
+/* ==========================================================================
+   PRIVACY / LEGAL PROSE
+   ========================================================================== */
+.prose {
+  max-width: 42rem;
+  margin: 0 auto;
+  color: var(--mud);
+}
+.prose .intro-para {
+  font-size: 1.05rem;
+  color: var(--mud-warm);
+  margin-bottom: 1.6rem;
+}
+.prose h2 {
+  font-family: var(--serif);
+  font-weight: 600;
+  color: var(--mud-dark);
+  font-size: 1.45rem;
+  margin: 2.2rem 0 .6rem;
+  padding-top: .4rem;
+  position: relative;
+}
+.prose h2::after {
+  content: "";
+  display: block;
+  width: 44px;
+  height: 2px;
+  background: var(--gold, #B59A63);
+  margin-top: .5rem;
+}
+.prose p { line-height: 1.75; margin-bottom: 1rem; }
+.prose ul { margin: 0 0 1.2rem; padding-left: 1.15rem; }
+.prose li { line-height: 1.7; margin-bottom: .6rem; }
+.prose a { color: var(--mud-warm); text-decoration: underline; text-underline-offset: 3px; }
+.prose a:hover { color: var(--mud-dark); }
+.prose .muted-note { font-size: .82rem; color: rgba(74,56,41,.55); margin-top: 2.4rem; }
+.prose strong { color: var(--mud-dark); }

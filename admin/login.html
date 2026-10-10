@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Administrator Sign In | Akshaya Milan</title>
+  <link rel="icon" href="/assets/images/brand/logo.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/admin/css/admin.css" />
+</head>
+<body class="auth-body">
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <div class="auth-brand">
+        <img src="/assets/images/brand/logo-emblem.png" alt="Akshaya Milan" />
+        <h1>Administrator</h1>
+      </div>
+      <p class="lead">Sign in to manage enquiries, analytics and reports.</p>
+      <form id="login-form" autocomplete="on">
+        <div class="field">
+          <label for="email">Email address</label>
+          <input id="email" name="email" type="email" required autocomplete="email" placeholder="admin@akshayamilan.in" />
+        </div>
+        <div class="field">
+          <label for="password">Password</label>
+          <input id="password" name="password" type="password" required autocomplete="current-password" placeholder="••••••••••" />
+        </div>
+        <button class="btn btn-dark" type="submit" id="submit-btn">Sign In</button>
+      </form>
+      <div class="auth-status" id="auth-status" role="alert"></div>
+      <div class="auth-alt">
+        <a href="/admin/reset-password.html">Forgot your password?</a>
+      </div>
+    </div>
+  </div>
+  <script>
+    (function () {
+      var form = document.getElementById("login-form");
+      var status = document.getElementById("auth-status");
+      var btn = document.getElementById("submit-btn");
+
+      // Already signed in? Skip straight through.
+      fetch("/api/auth/session", { credentials: "same-origin" })
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          if (d && d.authed) window.location.replace("/admin/index.html");
+        })
+        .catch(function () {});
+
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        status.textContent = "";
+        status.className = "auth-status";
+        var email = document.getElementById("email").value.trim();
+        var password = document.getElementById("password").value;
+        if (!email || !password) {
+          status.textContent = "Please enter your email and password.";
+          status.className = "auth-status err";
+          return;
+        }
+        btn.disabled = true;
+        btn.textContent = "Signing in…";
+        fetch("/api/auth/login", {
+          method: "POST",
+          credentials: "same-origin",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: email, password: password })
+        })
+          .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+          .then(function (out) {
+            if (out.ok) {
+              status.textContent = "Access granted — loading dashboard…";
+              status.className = "auth-status ok";
+              var next = new URLSearchParams(location.search).get("next");
+              window.location.replace(next && next.startsWith("/admin") ? next : "/admin/index.html");
+            } else {
+              status.textContent = out.d.error || "Invalid email or password.";
+              status.className = "auth-status err";
+            }
+          })
+          .catch(function () {
+            status.textContent = "Could not reach the server. Please retry.";
+            status.className = "auth-status err";
+          })
+          .finally(function () {
+            btn.disabled = false;
+            btn.textContent = "Sign In";
+          });
+      });
+    })();
+  </script>
+</body>
+</html>

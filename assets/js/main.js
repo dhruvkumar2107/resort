@@ -232,6 +232,136 @@
     }
   }
 
+  /* ---------- Database-backed enquiry submission (with WhatsApp fallback) ---------- */
+  function injectAntiBot(form) {
+    if (form.querySelector(".hp-hide")) return form;
+    const hp = document.createElement("input");
+    hp.type = "text";
+    hp.name = "hp_field";
+    hp.className = "hp-hide";
+    hp.setAttribute("aria-hidden", "true");
+    hp.tabIndex = -1;
+    hp.autocomplete = "off";
+    hp.style.cssText = "position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;opacity:0;";
+    const ts = document.createElement("input");
+    ts.type = "hidden";
+    ts.name = "request_time_ms";
+    form.appendChild(hp);
+    form.appendChild(ts);
+    form.__startedAt = Date.now();
+    return form;
+  }
+
+  function structuredPayload(form) {
+    const data = {};
+    const multi = {};
+    $$("input, select, textarea", form).forEach((el) => {
+      const key = el.name;
+      if (!key) return;
+      if (el.type === "checkbox") {
+        if (el.checked) (multi[key] = multi[key] || []).push(el.value || "Yes");
+        return;
+      }
+      if (el.type === "radio") {
+        if (el.checked) data[key] = el.value;
+        return;
+      }
+      data[key] = (el.value || "").trim();
+    });
+    Object.keys(multi).forEach((k) => (data[k] = multi[k]));
+    return data;
+  }
+
+  function toApiPayload(form) {
+    const data = structuredPayload(form);
+    const hasConsentBox = Boolean($('input[name="consent"]', form));
+    const services = data.services;
+    return {
+      full_name: data.name || "",
+      phone: data.phone || "",
+      email: data.email || undefined,
+      event_type: data.event_type || undefined,
+      event_date: data.date || undefined,
+      guest_count: data.guests || undefined,
+      message: data.message || data.notes || undefined,
+      services: Array.isArray(services) ? services : undefined,
+      range: data.space || undefined,
+      time: data.time || undefined,
+      // Submitting an enquiry is consent to be contacted about it.
+      consent: hasConsentBox ? Boolean(data.consent) : true,
+      lead_source: "website",
+      submitted_from: location.pathname,
+      request_time_ms: form.__startedAt ? Math.round((Date.now() - form.__startedAt) / 1000) : 0,
+      hp_field: data.hp_field || "",
+    };
+  }
+
+  function formErrorEl(form) {
+    let el = form.querySelector(".js-form-error");
+    if (!el) {
+      el = document.createElement("div");
+      el.className = "js-form-error";
+      el.style.cssText =
+        "color:#a3402f;font-size:13.5px;margin:0 0 14px;padding:10px 12px;border:1px dashed rgba(163,64,47,.5);border-radius:8px;background:rgba(163,64,47,.07);";
+      form.insertBefore(el, form.firstChild);
+    }
+    return el;
+  }
+  function showFormError(form, msg) {
+    const el = formErrorEl(form);
+    el.textContent = msg;
+    el.hidden = false;
+    el.setAttribute("role", "alert");
+  }
+  function clearFormError(form) {
+    const el = form.querySelector(".js-form-error");
+    if (el) el.hidden = true;
+  }
+
+  function setBusy(form, busy) {
+    $$("button[type=submit]", form).forEach((b) => {
+      b.disabled = busy;
+      b.dataset.label = b.dataset.label || b.textContent;
+      b.textContent = busy ? "Sending…" : b.dataset.label;
+    });
+  }
+
+  async function sendEnquiry(form, intro) {
+    injectAntiBot(form);
+    clearFormError(form);
+    setBusy(form, true);
+    const fallback = () => {
+      const href = whatsappHref(form, intro);
+      revealSuccess(form, href);
+      const win = window.open(href, "_blank", "noopener");
+      if (!win) window.location.href = href;
+    };
+    try {
+      const res = await fetch("/api/enquiries/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(toApiPayload(form)),
+        credentials: "same-origin",
+      });
+      if (res.status === 200 || res.status === 201) {
+        revealSuccess(form, whatsappHref(form, intro));
+        return;
+      }
+      if (res.status >= 500) {
+        fallback(); // database unavailable -> use WhatsApp so no enquiry is lost
+        return;
+      }
+      let msg = "We couldn't accept your details — please review and try again.";
+      if (res.status === 429) msg = "That was a little too quick — please wait a minute and then send again.";
+      if (res.status === 422) msg = "Some details need a second look (name, phone or consent). Please check and resend.";
+      showFormError(form, msg);
+    } catch (err) {
+      fallback(); // network error -> WhatsApp
+    } finally {
+      setBusy(form, false);
+    }
+  }
+
   /* ---------- Generic form validation + submit ---------- */
   function validateField(field) {
     const input = $("input, select, textarea", field);
@@ -252,6 +382,7 @@
 
   $$(".js-form").forEach((form) => {
     const fields = $$(".field", form);
+    injectAntiBot(form);
     fields.forEach((field) => {
       const input = $("input, select, textarea", field);
       if (!input) return;
@@ -271,10 +402,7 @@
         if (first) first.focus();
         return;
       }
-      const href = whatsappHref(form);
-      revealSuccess(form, href);
-      const win = window.open(href, "_blank", "noopener");
-      if (!win) window.location.href = href;
+      sendEnquiry(form);
     });
   });
 
@@ -333,15 +461,17 @@
       stepper.addEventListener("submit", (e) => {
         e.preventDefault();
         if (!validateStep()) return;
-        const href = whatsappHref(
-          stepper,
-          "Hello Akshaya Milan, here are my event enquiry details:"
-        );
-        const progress = $(".stepper-progress", stepper);
-        if (progress) progress.style.display = "none";
-        revealSuccess(stepper, href);
-        const win = window.open(href, "_blank", "noopener");
-        if (!win) window.location.href = href;
+        sendEnquiry(stepper, "Hello Akshaya Milan, here are my event enquiry details:").then(() => {
+          const progress = $(".stepper-progress", stepper);
+          if (progress) progress.style.display = "none";
+          if (stepper.style.display === "none") {
+            // sent via database -> the success panel already shows the WhatsApp option
+            const success = stepper.parentElement && stepper.parentElement.querySelector(".form-success");
+            if (success && success.classList.contains("show")) {
+              success.scrollIntoView({ behavior: "smooth", block: "center" });
+            }
+          }
+        });
       });
     }
     paint();
