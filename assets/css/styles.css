@@ -45,6 +45,7 @@
   --font-serif: var(--serif);
   --text-muted: var(--text-mute);
   --radius: var(--r-lg);
+  --field-ph: rgba(74,56,41,.5);
 }
 
 .gallery-quote { font-family: var(--serif); font-weight: 500; color: var(--mud); }
@@ -947,35 +948,44 @@ body.nav-open { overflow: hidden; }
 }
 .booking-form .field.full { grid-column: 1 / -1; }
 .booking-form .field { display: flex; flex-direction: column; gap: .4rem; }
-.booking-form label {
+.booking-form .field label {
   font-size: .67rem;
   font-weight: 600;
   letter-spacing: .12em;
   text-transform: uppercase;
-  color: rgba(233,221,200,.6);
+  color: rgba(233,221,200,.82);
 }
 .req { color: var(--gold); }
-.booking-form input,
-.booking-form select {
+.booking-form .field input,
+.booking-form .field select {
   padding: .9rem 1rem;
-  background: rgba(233,221,200,.07);
-  border: 1px solid rgba(181,154,99,.28);
+  background: var(--cream);
+  border: 1px solid rgba(74,56,41,.22);
   border-radius: var(--r);
-  color: var(--beige);
+  color: var(--text);
   font-size: .92rem;
   transition: border-color .3s, box-shadow .3s, background .3s;
   outline: none;
   width: 100%;
 }
-.booking-form input::placeholder { color: rgba(233,221,200,.35); }
-.booking-form input:focus,
-.booking-form select:focus {
+.booking-form .field input::placeholder,
+.booking-form .field select::placeholder { color: var(--field-ph); opacity: 1; }
+.booking-form .field input:focus,
+.booking-form .field select:focus {
   border-color: var(--gold);
-  background: rgba(233,221,200,.11);
-  box-shadow: 0 0 0 3px rgba(181,154,99,.16);
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(181,154,99,.22);
 }
-.booking-form input[type="date"] { color-scheme: dark; }
-.booking-form select option { background: var(--mud-dark); color: var(--beige); }
+.booking-form .field input[type="date"],
+.field input[type="date"] { color-scheme: light; }
+.booking-form .field select option,
+.field select option { background: var(--cream); color: var(--text); }
+.booking-form .field input:-webkit-autofill,
+.field input:-webkit-autofill {
+  -webkit-text-fill-color: var(--text);
+  box-shadow: 0 0 0 1000px var(--cream) inset;
+  transition: background-color 9999s ease-out 0s;
+}
 .booking-form .error-msg { display: none; font-size: .7rem; color: #E3A597; }
 .booking-form .field.invalid .error-msg { display: block; }
 .booking-form .field.invalid input,
@@ -1283,6 +1293,9 @@ body.nav-open { overflow: hidden; }
   transition: border-color .3s, box-shadow .3s;
 }
 .field textarea { resize: vertical; min-height: 130px; }
+.field input::placeholder,
+.field select::placeholder,
+.field textarea::placeholder { color: var(--field-ph); opacity: 1; }
 .field input:focus,
 .field select:focus,
 .field textarea:focus {
