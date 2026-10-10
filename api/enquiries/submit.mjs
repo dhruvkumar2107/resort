@@ -74,15 +74,15 @@ export default async function handler(req, res) {
   try {
     const { data: inserted, error } = await db()
       .from("enquiries")
-      .insert(row, { ignoreDuplicates: true })
+      .insert(row, { onConflict: "dedupe_key", ignoreDuplicates: true })
       .select("id, created_at")
-      .single();
+      .maybeSingle();
 
     if (error) throw error;
 
-    // ignoreDuplicates + returned rows still included when a row was inserted.
+    // ignoreDuplicates + onConflict: when the exact duplicate already exists
+    // no row is returned -> idempotent success.
     if (!inserted || !inserted.id) {
-      // Identical submission already recorded — idempotent success.
       return json(res, 200, { ok: true, accepted: true, duplicate: true, id: null });
     }
 

@@ -30,6 +30,16 @@ Key rules:
 2. Open **SQL Editor** and run, in order:
    - `supabase/migrations/0001_initial.sql`
    - `supabase/migrations/0002_stats_rpc.sql`
+   - `supabase/migrations/0003_fix_dedupe.sql`
+
+   Or apply them from the CLI with a direct connection string (migrations run inside
+   transactions and skip already-applied steps):
+
+   ```bash
+   $env:DATABASE_URL="postgresql://postgres:...@db.<ref>.supabase.co:5432/postgres"
+   node scripts/db-apply.mjs
+   node scripts/db-smoke.mjs   # verifies tables, RLS, dedupe and the stats RPC
+   ```
 3. Open **Authentication → Providers → Email** and enable **Email** sign-in
    (we only use email/password; keep "Confirm email" enabled if you want confirmation emails
    before the first admin signs in).
@@ -98,9 +108,9 @@ $env:SUPABASE_URL="..."; $env:SUPABASE_SERVICE_ROLE_KEY="..."; npm run test:inte
 `enquiry.html` (multi-step), the homepage booking form and `contact.html` submit JSON to
 `POST /api/enquiries/submit`. Flow: honeypot + `request_time_ms` anti-bot checks → rate limit
 (5/hour/IP) → server-side validation → de-duplication (unique `dedupe_key` from
-`sha256(phone|message)`) → insert. Success is reported **only** after the DB confirms.
-Failures: 4xx shows an inline error and allows a retry; 5xx/network falls back to opening
-WhatsApp with the same message.
+`sha256(phone|message)`, enforced by migration 0003's unique index) → insert. Success is
+reported **only** after the DB confirms. Failures: 4xx shows an inline error and allows a
+retry; 5xx/network falls back to opening WhatsApp with the same message.
 
 ### Admin authentication
 `POST /api/auth/login` validates against Supabase Auth and sets two httpOnly cookies
@@ -147,7 +157,8 @@ for owner accounts. Files are served as true attachments with `Content-Dispositi
 npm install
 npm run check        # syntax + wiring + leak scans
 npm test             # 24 unit tests (validate/exporters/ua/range/http)
-npm run test:integration   # needs live Supabase env
+npm run test:integration   # needs live Supabase env (REST)
+node scripts/db-smoke.mjs  # needs DATABASE_URL (direct SQL, RLS/dedupe/stats)
 ```
 
 ## Files you may want to touch

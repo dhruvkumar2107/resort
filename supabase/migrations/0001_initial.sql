@@ -7,33 +7,6 @@
 create extension if not exists "pgcrypto";
 
 -- ---------------------------------------------------------------------------
--- Helpers: current admin identity checks (SECURITY DEFINER -> bypass RLS of
--- admin_users so we can evaluate policies against it without recursion).
--- ---------------------------------------------------------------------------
-create or replace function public.is_admin()
-returns boolean
-language sql stable security definer set search_path = public as
-$$
-  select exists (
-    select 1 from public.admin_users a
-    where a.auth_user_id = auth.uid()
-      and a.is_active = true
-  );
-$$;
-
-create or replace function public.is_owner()
-returns boolean
-language sql stable security definer set search_path = public as
-$$
-  select exists (
-    select 1 from public.admin_users a
-    where a.auth_user_id = auth.uid()
-      and a.role = 'owner'
-      and a.is_active = true
-  );
-$$;
-
--- ---------------------------------------------------------------------------
 -- Table A: enquiries
 -- ---------------------------------------------------------------------------
 create table public.enquiries (
@@ -62,8 +35,8 @@ create table public.enquiries (
   dedupe_key         text                   -- sha256(phone|message) de-duplication guard
 );
 
-create unique index if not exists enquiries_dedupe_key_idx
-  on public.enquiries (dedupe_key) where dedupe_key is not null;
+create unique index if not exists enquiries_dedupe_key_uniq
+  on public.enquiries (dedupe_key);
 create index if not exists enquiries_created_at_idx on public.enquiries (created_at desc);
 create index if not exists enquiries_status_idx on public.enquiries (status);
 create index if not exists enquiries_phone_idx on public.enquiries (phone);
@@ -194,6 +167,35 @@ create table public.admin_audit_log (
 
 create index if not exists admin_audit_log_created_at_idx
   on public.admin_audit_log (created_at desc);
+
+-- ---------------------------------------------------------------------------
+-- Helpers: current admin identity checks. Placed after admin_users is created
+-- because these are LANGUAGE sql functions (the body is validated eagerly).
+-- SECURITY DEFINER bypasses RLS of admin_users so policies can evaluate
+-- against it without recursion.
+-- ---------------------------------------------------------------------------
+create or replace function public.is_admin()
+returns boolean
+language sql stable security definer set search_path = public as
+$$
+  select exists (
+    select 1 from public.admin_users a
+    where a.auth_user_id = auth.uid()
+      and a.is_active = true
+  );
+$$;
+
+create or replace function public.is_owner()
+returns boolean
+language sql stable security definer set search_path = public as
+$$
+  select exists (
+    select 1 from public.admin_users a
+    where a.auth_user_id = auth.uid()
+      and a.role = 'owner'
+      and a.is_active = true
+  );
+$$;
 
 -- ============================================================================
 -- Row Level Security
