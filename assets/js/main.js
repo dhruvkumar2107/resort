@@ -180,7 +180,59 @@
     });
   }
 
-  /* ---------- Generic form validation + success ---------- */
+  /* ---------- Enquiry delivery (WhatsApp — no backend required) ---------- */
+  const WA_NUMBER = "919845691995";
+  const FIELD_LABELS = {
+    name: "Name", phone: "Phone", email: "Email", city: "City",
+    event_type: "Event type", date: "Event date", guests: "Guests",
+    time: "Preferred time", space: "Preferred space", services: "Services",
+    notes: "Notes", source: "Heard about us", package: "Preferred package",
+    message: "Message"
+  };
+  function collectFormText(form) {
+    const grouped = {};
+    $$("input, select, textarea", form).forEach((el) => {
+      const key = el.name;
+      if (!key) return;
+      if (el.type === "checkbox") {
+        if (el.checked) (grouped[key] = grouped[key] || []).push(el.value || "Yes");
+        return;
+      }
+      if (el.type === "radio") {
+        if (el.checked) grouped[key] = [el.value];
+        return;
+      }
+      const val = (el.value || "").trim();
+      if (val) grouped[key] = [val];
+    });
+    return Object.keys(grouped)
+      .map((k) => (FIELD_LABELS[k] || k) + ": " + grouped[k].join(", "))
+      .join("\n");
+  }
+  function whatsappHref(form, intro) {
+    const body =
+      (intro || "Hello Akshaya Milan, I would like to enquire about hosting an event.") +
+      "\n\n" +
+      collectFormText(form) +
+      "\n\n(Sent from the Akshaya Milan website)";
+    return "https://wa.me/" + WA_NUMBER + "?text=" + encodeURIComponent(body);
+  }
+  function revealSuccess(form, href) {
+    const success =
+      (form.parentElement && form.parentElement.querySelector(".form-success")) ||
+      $(".form-success");
+    form.style.display = "none";
+    if (success) {
+      const link = $("[data-wa-link]", success);
+      if (link && href) link.href = href;
+      success.classList.add("show");
+      success.setAttribute("tabindex", "-1");
+      success.focus();
+      success.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }
+
+  /* ---------- Generic form validation + submit ---------- */
   function validateField(field) {
     const input = $("input, select, textarea", field);
     if (!input) return true;
@@ -219,13 +271,10 @@
         if (first) first.focus();
         return;
       }
-      const success = form.parentElement.querySelector(".form-success");
-      form.style.display = "none";
-      if (success) {
-        success.classList.add("show");
-        success.setAttribute("tabindex", "-1");
-        success.focus();
-      }
+      const href = whatsappHref(form);
+      revealSuccess(form, href);
+      const win = window.open(href, "_blank", "noopener");
+      if (!win) window.location.href = href;
     });
   });
 
@@ -284,16 +333,15 @@
       stepper.addEventListener("submit", (e) => {
         e.preventDefault();
         if (!validateStep()) return;
-        const success = $(".form-success", stepper.parentElement) || $(".form-success");
-        stepper.style.display = "none";
+        const href = whatsappHref(
+          stepper,
+          "Hello Akshaya Milan, here are my event enquiry details:"
+        );
         const progress = $(".stepper-progress", stepper);
         if (progress) progress.style.display = "none";
-        if (success) {
-          success.classList.add("show");
-          success.setAttribute("tabindex", "-1");
-          success.focus();
-          success.scrollIntoView({ behavior: "smooth", block: "center" });
-        }
+        revealSuccess(stepper, href);
+        const win = window.open(href, "_blank", "noopener");
+        if (!win) window.location.href = href;
       });
     }
     paint();

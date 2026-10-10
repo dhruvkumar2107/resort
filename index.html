@@ -3,16 +3,44 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Akshaya Milan — Premium Wedding & Celebration Venue | Thavarekere, Bengaluru</title>
-  <meta name="description" content="Akshaya Milan — a premium wedding and celebration venue in Thavarekere, Bengaluru. Earthy, heritage-inspired, hosted with warmth." />
+  <title>Akshaya Milan — Premium Wedding &amp; Celebration Venue | Thavarekere, Bengaluru</title>
+  <meta name="description" content="Akshaya Milan is a premium wedding and celebration venue in Thavarekere, Bengaluru — earthy, heritage-inspired halls and an open-air lawn for up to 1200 guests, hosted with warmth." />
   <meta name="theme-color" content="#4A3829" />
+  <link rel="canonical" href="https://akshaya-milan.vercel.app/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Akshaya Milan" />
+  <meta property="og:title" content="Akshaya Milan — Premium Wedding &amp; Celebration Venue, Bengaluru" />
+  <meta property="og:description" content="Where your forever begins. An earthy, heritage-inspired wedding and celebration venue in Thavarekere, Bengaluru." />
+  <meta property="og:image" content="https://akshaya-milan.vercel.app/assets/images/hero-1.jpg" />
+  <meta name="twitter:card" content="summary_large_image" />
   <link rel="icon" href="assets/images/brand/logo.png" />
+  <link rel="apple-touch-icon" href="assets/images/brand/logo.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="preload" as="image" href="assets/images/hero-1.jpg" />
   <link rel="stylesheet" href="assets/css/styles.css" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "EventVenue",
+    "name": "Akshaya Milan",
+    "description": "Premium wedding and celebration venue in Thavarekere, Bengaluru.",
+    "image": "https://akshaya-milan.vercel.app/assets/images/hero-1.jpg",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "Thavarekere, Kanakapura Main Road",
+      "addressLocality": "Bengaluru",
+      "addressRegion": "Karnataka",
+      "addressCountry": "IN"
+    },
+    "telephone": "+91-98456-91995",
+    "maximumAttendeeCapacity": 1200
+  }
+  </script>
 </head>
 <body>
+  <a class="skip-link" href="#main">Skip to content</a>
 
   <!-- ============ TOP INFORMATION BAR ============ -->
   <div class="topbar">
@@ -39,10 +67,11 @@
         </span>
       </a>
       <div class="nav-links" id="navLinks">
-        <a href="index.html" class="active">The Venue</a>
+        <a href="index.html" class="active">Home</a>
+        <a href="venues.html">The Venue</a>
         <a href="services.html">Experience</a>
+        <a href="packages.html">Packages</a>
         <a href="gallery.html">Gallery</a>
-        <a href="about.html">Celebrations</a>
         <a href="about.html">About</a>
         <a href="contact.html">Location</a>
         <a class="btn nav-cta" href="enquiry.html">Book Your Date</a>
@@ -54,28 +83,22 @@
   <main id="main">
 
     <!-- ============ HERO ============ -->
-    <section class="hero">
+    <section class="hero" aria-label="Akshaya Milan — where your forever begins">
       <div class="hero-slides" aria-hidden="true">
         <div class="hero-slide active" style="background-image:url('assets/images/hero-1.jpg')"></div>
-        <div class="hero-slide" style="background-image:url('assets/images/spaces/space-2.jpg')"></div>
         <div class="hero-slide" style="background-image:url('assets/images/gallery/gallery-20.jpg')"></div>
+        <div class="hero-slide" style="background-image:url('assets/images/spaces/space-2.jpg')"></div>
       </div>
       <div class="container">
         <div class="hero-content">
-          <span class="hero-eyebrow">Akshaya Milan</span>
-          <h1>
-            A Destination
-            for Weddings
-            &
-            Celebrations
-          </h1>
-          <p class="hero-loc">Thavarekere · Bengaluru</p>
-          <p class="hero-line">An earthy, heritage-inspired venue where warm interiors, open skies and heartfelt hospitality come together for the celebrations that matter most.</p>
+          <span class="hero-eyebrow">Akshaya Milan · Thavarekere, Bengaluru</span>
+          <h1 class="hero-title">Where Your <em>Forever</em> Begins.</h1>
+          <p class="hero-line">An earthy, heritage-inspired wedding &amp; celebration venue where warm interiors, open skies and heartfelt hospitality come together for the moments that matter most.</p>
           <div class="hero-actions">
-            <a class="btn btn-primary hero-btn" href="enquiry.html">Book Your Date →</a>
-            <a class="btn btn-secondary hero-btn" href="venues.html">Explore the Venue</a>
+            <a class="btn btn-gold hero-btn" href="venues.html">Explore the Venue</a>
+            <a class="btn hero-btn hero-btn--ghost" href="enquiry.html">Plan Your Celebration</a>
           </div>
-          <div class="scroll-hint">Scroll to Discover ↓</div>
+          <p class="scroll-hint">Scroll to discover</p>
         </div>
       </div>
       <div class="hero-dots" role="group" aria-label="Hero images">
@@ -140,10 +163,10 @@
       <div class="container">
         <div class="interact-wrapper">
           <div class="interact-categories">
-            <a class="btn btn-active">Weddings</a>
-            <a class="btn">Receptions</a>
-            <a class="btn">Engagements</a>
-            <a class="btn">Family Celebrations</a>
+            <a class="btn btn-active" href="venues.html">Weddings</a>
+            <a class="btn" href="venues.html">Receptions</a>
+            <a class="btn" href="venues.html">Engagements</a>
+            <a class="btn" href="venues.html">Family Celebrations</a>
           </div>
           <div class="interact-image reveal">
             <img src="assets/images/spaces/space-2.jpg" alt="Grand celebration hall at Akshaya Milan" loading="lazy" />
@@ -176,30 +199,46 @@
         </div>
         <div class="gallery-wrapper">
           <div class="gallery-grid">
-            <div class="gallery-item tall" data-category="wedding">
-              <img src="assets/images/spaces/space-8.jpg" alt="Bride at a wedding celebration in Bengaluru" loading="lazy" />
-              <div class="label">Wedding</div>
-            </div>
-            <div class="gallery-item wide" data-category="decor">
-              <img src="assets/images/spaces/space-2.jpg" alt="Floral canopy and stage decor at Akshaya Milan" loading="lazy" />
-              <div class="label">Decor & Stage</div>
-            </div>
-            <div class="gallery-item" data-category="wedding">
-              <img src="assets/images/gallery/gallery-20.jpg" alt="Baraat celebration at Akshaya Milan" loading="lazy" />
-              <div class="label">The Baraat</div>
-            </div>
-            <div class="gallery-item tall" data-category="decor">
-              <img src="assets/images/gallery/gallery-05.jpg" alt="Heritage shrine decor at Akshaya Milan" loading="lazy" />
-              <div class="label">Heritage Details</div>
-            </div>
-            <div class="gallery-item wide" data-category="reception">
-              <img src="assets/images/spaces/space-1.jpg" alt="Banquet hall arranged for a reception" loading="lazy" />
-              <div class="label">Reception</div>
-            </div>
-            <div class="gallery-item" data-category="lighting">
-              <img src="assets/images/hero-2.jpg" alt="Warmly lit hall at an Akshaya Milan celebration" loading="lazy" />
-              <div class="label">Evening Lights</div>
-            </div>
+            <button class="gallery-item tall" data-category="decor" data-full="assets/images/gallery/gallery-05.jpg" aria-label="Open image: Heritage shrine decor at Akshaya Milan">
+              <img src="assets/images/gallery/gallery-05.jpg" alt="Hand-painted heritage shrine decor at Akshaya Milan, Bengaluru" loading="lazy" decoding="async" />
+              <span class="gallery-expand" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></span>
+              <span class="label">Heritage Details</span>
+            </button>
+            <button class="gallery-item wide" data-category="wedding" data-full="assets/images/gallery/gallery-20.jpg" aria-label="Open image: Baraat celebration at Akshaya Milan">
+              <img src="assets/images/gallery/gallery-20.jpg" alt="Baraat celebration on the open grounds at Akshaya Milan" loading="lazy" decoding="async" />
+              <span class="gallery-expand" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></span>
+              <span class="label">The Baraat</span>
+            </button>
+            <button class="gallery-item" data-category="decor" data-full="assets/images/spaces/space-2.jpg" aria-label="Open image: Floral canopy and stage decor at Akshaya Milan">
+              <img src="assets/images/spaces/space-2.jpg" alt="Floral canopy and stage decor at Akshaya Milan" loading="lazy" decoding="async" />
+              <span class="gallery-expand" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></span>
+              <span class="label">Decor &amp; Stage</span>
+            </button>
+            <button class="gallery-item" data-category="reception" data-full="assets/images/spaces/space-1.jpg" aria-label="Open image: Banquet hall arranged for a reception">
+              <img src="assets/images/spaces/space-1.jpg" alt="Banquet hall arranged for a reception at Akshaya Milan" loading="lazy" decoding="async" />
+              <span class="gallery-expand" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></span>
+              <span class="label">Reception</span>
+            </button>
+            <button class="gallery-item tall" data-category="wedding" data-full="assets/images/spaces/space-8.jpg" aria-label="Open image: Bridal portrait at a wedding at Akshaya Milan">
+              <img src="assets/images/spaces/space-8.jpg" alt="Bride at a wedding celebration at Akshaya Milan" loading="lazy" decoding="async" />
+              <span class="gallery-expand" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></span>
+              <span class="label">The Wedding</span>
+            </button>
+            <button class="gallery-item wide" data-category="lighting" data-full="assets/images/hero-2.jpg" aria-label="Open image: Warmly lit hall at an Akshaya Milan celebration">
+              <img src="assets/images/hero-2.jpg" alt="Warmly lit hall at an evening celebration at Akshaya Milan" loading="lazy" decoding="async" />
+              <span class="gallery-expand" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></span>
+              <span class="label">Evening Lights</span>
+            </button>
+            <button class="gallery-item" data-category="engagement" data-full="assets/images/gallery/gallery-21.jpg" aria-label="Open image: Engagement setting at Akshaya Milan">
+              <img src="assets/images/gallery/gallery-21.jpg" alt="Engagement setting at Akshaya Milan" loading="lazy" decoding="async" />
+              <span class="gallery-expand" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></span>
+              <span class="label">Engagement</span>
+            </button>
+            <button class="gallery-item" data-category="reception" data-full="assets/images/spaces/space-3.jpg" aria-label="Open image: Open-air lawn set for an evening reception">
+              <img src="assets/images/spaces/space-3.jpg" alt="Open-air lawn set for an evening reception at Akshaya Milan" loading="lazy" decoding="async" />
+              <span class="gallery-expand" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></span>
+              <span class="label">The Lawn</span>
+            </button>
           </div>
         </div>
         <div class="text-center mt-3"><a class="btn btn-outline" href="gallery.html">View Full Gallery</a></div>
@@ -252,15 +291,15 @@
             <span>A Beautiful</span>
             <span class="gold">Beginning.</span>
           </p>
-          <form class="booking-form" novalidate>
+          <form class="booking-form js-form" novalidate>
             <div class="field">
               <label for="b-name">Name <span class="req">*</span></label>
-              <input id="b-name" type="text" required autocomplete="name" />
+              <input id="b-name" name="name" type="text" required autocomplete="name" />
               <span class="error-msg">Please enter your name.</span>
             </div>
             <div class="field">
               <label for="b-phone">Phone <span class="req">*</span></label>
-              <input id="b-phone" type="tel" required autocomplete="tel" />
+              <input id="b-phone" name="phone" type="tel" required autocomplete="tel" />
               <span class="error-msg">Please enter a valid phone number.</span>
             </div>
             <div class="field">
@@ -272,23 +311,28 @@
             </div>
             <div class="field">
               <label for="b-date">Preferred Date <span class="req">*</span></label>
-              <input id="b-date" type="date" required />
+              <input id="b-date" name="date" type="date" required />
               <span class="error-msg">Please choose a date.</span>
             </div>
             <div class="field">
               <label for="b-guests">Guests <span class="req">*</span></label>
-              <input id="b-guests" type="number" min="1" placeholder="e.g. 400" required />
+              <input id="b-guests" name="guests" type="number" min="1" placeholder="e.g. 400" required />
               <span class="error-msg">Please enter guest count.</span>
             </div>
             <div class="field">
               <label for="b-email">Email <span class="req">*</span></label>
-              <input id="b-email" type="email" required autocomplete="email" />
+              <input id="b-email" name="email" type="email" required autocomplete="email" />
               <span class="error-msg">Please enter a valid email.</span>
             </div>
             <div class="field full">
               <button class="btn btn-primary" type="submit">Check Your Date →</button>
             </div>
           </form>
+          <div class="form-success" role="status">
+            <h3>Your enquiry is ready</h3>
+            <p>We've prepared your details in WhatsApp — just press send and our team will reply within 24 hours. Prefer email? Write to <a href="mailto:hello@akshayamilan.in">hello@akshayamilan.in</a>.</p>
+            <p style="margin-top:1.2rem"><a class="btn btn-gold" data-wa-link href="https://wa.me/919845691995" target="_blank" rel="noopener">Send on WhatsApp</a></p>
+          </div>
           <div class="booking-cta">
             <a class="btn btn-primary" href="tel:+919845691995">Call Us</a>
             <a class="btn btn-secondary" href="https://wa.me/919845691995" target="_blank" rel="noopener">WhatsApp Us</a>
@@ -326,6 +370,15 @@
         </div>
       </div>
     </section>
+
+    <!-- ============ LIGHTBOX ============ -->
+    <div class="lightbox" role="dialog" aria-modal="true" aria-label="Image viewer">
+      <button class="lightbox-close" aria-label="Close image viewer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+      <button class="lightbox-prev" aria-label="Previous image"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
+      <button class="lightbox-next" aria-label="Next image"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></button>
+      <img alt="" />
+      <div class="lightbox-caption"></div>
+    </div>
   </main>
 
   <!-- ============ FOOTER ============ -->
@@ -341,10 +394,10 @@
           <div>
             <h4>Quick Links</h4>
             <ul>
-              <li><a href="index.html">The Venue</a></li>
+              <li><a href="index.html">Home</a></li>
+              <li><a href="venues.html">The Venue</a></li>
               <li><a href="services.html">Experience</a></li>
               <li><a href="gallery.html">Gallery</a></li>
-              <li><a href="about.html">Celebrations</a></li>
               <li><a href="about.html">About</a></li>
               <li><a href="contact.html">Location</a></li>
             </ul>
