@@ -48,12 +48,18 @@ assert.ok(!statsErr, `stats_overview error: ${statsErr?.message}`);
 assert.ok(stats && typeof stats === "object", "stats_overview returned an object");
 ok("stats_overview RPC runs");
 
-// 2) RLS: direct client read of enquiries is blocked
+// 2) RLS: direct client read of enquiries is blocked.
+// PostgREST returns an empty array (not an error) when RLS filters a read,
+// so "no rows AND no error" is the expected safe outcome; an error is fine too.
 const direct = await lowPriv.from("enquiries").select("*").limit(1);
-assert.ok(direct.error, "direct select on enquiries must fail (RLS / no grant)");
+const leaked = Array.isArray(direct.data) ? direct.data.length : direct.data ? 1 : 0;
+assert.ok(direct.error || leaked === 0, "RLS must block direct anon reads of enquiries");
 ok("direct client reads of enquiries are blocked");
 
 // 3) insert a sample enquiry, then dedupe the exact duplicate
+function payloadKey(p) {
+  return `${p.phone}|${p.message}`;
+}
 const payload = {
   full_name: "Integration Test User",
   phone: "919999999991",
@@ -62,14 +68,11 @@ const payload = {
   event_date: "2027-01-01",
   guest_count: 250,
   message: `integration-test ${Date.now()}`,
-  consent: true,
+  consented_to_contact: true,
   lead_source: "website",
   services: ["Hall A"],
-  dedupe_key: createHash("sha256").update(payloadKey(payload)).digest("hex"),
 };
-function payloadKey(p) {
-  return `${p.phone}|${p.message}`;
-}
+payload.dedupe_key = createHash("sha256").update(payloadKey(payload)).digest("hex");
 
 const { data: inserted, error: insErr } = await service
   .from("enquiries")
@@ -82,11 +85,11 @@ ok("service-role insert works");
 
 const { data: dupRow, error: dupErr } = await service
   .from("enquiries")
-  .insert({ ...payload, dedupe_key: payload.dedupe_key })
+  .upsert({ ...payload, dedupe_key: payload.dedupe_key }, { onConflict: "dedupe_key", ignoreDuplicates: true })
   .select("id")
   .maybeSingle();
 assert.ok(!dupErr, `dedupe insert error: ${dupErr?.message}`);
-assert.equal(dupRow, null, "duplicate row was ignored");
+assert.equal(dupRow, null, "duplicate row was ignored (idempotent, mirrors the API)");
 ok("duplicate enquiry is ignored (unique dedupe_key)");
 
 // 4) rate-limit + audit + status-history tables exist and are usable

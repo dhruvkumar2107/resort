@@ -53,6 +53,7 @@ const required = [
   "privacy.html",
   "supabase/migrations/0001_initial.sql",
   "supabase/migrations/0002_stats_rpc.sql",
+  "supabase/migrations/0004_dedupe_constraint.sql",
 ];
 required.forEach((f) => {
   if (existsSync(join(root, f))) ok(`present ${f}`);

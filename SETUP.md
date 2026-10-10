@@ -31,6 +31,7 @@ Key rules:
    - `supabase/migrations/0001_initial.sql`
    - `supabase/migrations/0002_stats_rpc.sql`
    - `supabase/migrations/0003_fix_dedupe.sql`
+   - `supabase/migrations/0004_dedupe_constraint.sql`
 
    Or apply them from the CLI with a direct connection string (migrations run inside
    transactions and skip already-applied steps):
@@ -108,7 +109,10 @@ $env:SUPABASE_URL="..."; $env:SUPABASE_SERVICE_ROLE_KEY="..."; npm run test:inte
 `enquiry.html` (multi-step), the homepage booking form and `contact.html` submit JSON to
 `POST /api/enquiries/submit`. Flow: honeypot + `request_time_ms` anti-bot checks → rate limit
 (5/hour/IP) → server-side validation → de-duplication (unique `dedupe_key` from
-`sha256(phone|message)`, enforced by migration 0003's unique index) → insert. Success is
+`sha256(phone|message)`, enforced by a UNIQUE constraint on `dedupe_key`
+(migration 0004; 0003 converted the initial partial index to a non-partial unique
+index, then 0004 moved it to a proper constraint so PostgREST accepts it as an
+`on_conflict` target) → upsert. Success is
 reported **only** after the DB confirms. Failures: 4xx shows an inline error and allows a
 retry; 5xx/network falls back to opening WhatsApp with the same message.
 

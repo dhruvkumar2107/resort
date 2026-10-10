@@ -35,8 +35,8 @@ create table public.enquiries (
   dedupe_key         text                   -- sha256(phone|message) de-duplication guard
 );
 
-create unique index if not exists enquiries_dedupe_key_uniq
-  on public.enquiries (dedupe_key);
+alter table public.enquiries
+  add constraint enquiries_dedupe_key_uniq unique (dedupe_key);
 create index if not exists enquiries_created_at_idx on public.enquiries (created_at desc);
 create index if not exists enquiries_status_idx on public.enquiries (status);
 create index if not exists enquiries_phone_idx on public.enquiries (phone);

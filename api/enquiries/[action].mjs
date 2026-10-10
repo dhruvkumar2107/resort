@@ -1,0 +1,31 @@
+/* Dynamic enquiry routes for the single public endpoint:
+   /api/enquiries/<action>. */
+
+import * as handlers from "../_lib/handlers/enquiries.mjs";
+import { fail } from "../_lib/http.mjs";
+
+const MAP = { submit: "submit" };
+
+export default function handler(req, res) {
+  const action = actionOf(req) || String((req.query && req.query.action) || "");
+  mergeQuery(req);
+  const fn = MAP[action];
+  if (!fn) return fail(res, 404, "Not found.");
+  return handlers[fn](req, res);
+}
+
+function actionOf(req) {
+  try {
+    return new URL(req.url, "http://x").pathname.split("/").filter(Boolean).pop() || "";
+  } catch (_) {
+    return "";
+  }
+}
+
+function mergeQuery(req) {
+  req.query = { ...(req.query || {}) };
+  try {
+    const url = new URL(req.url, "http://x");
+    for (const [k, v] of url.searchParams) req.query[k] = v;
+  } catch (_) { /* keep req.query as-is */ }
+}

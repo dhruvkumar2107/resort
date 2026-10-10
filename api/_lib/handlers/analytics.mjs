@@ -1,18 +1,19 @@
+/* Shared analytics route handlers (see api/analytics/[action].mjs). */
+
+import { methodGuard, parseBody, ok, fail, serializeCookie, clientIp, userAgent, parseCookies } from "../http.mjs";
+import { db, hasBackend } from "../db.mjs";
+import { checkRate } from "../rate-limit.mjs";
+import { classifyUA, referrerDomain, normalizePath } from "../ua.mjs";
+
+export const CONSENT_COOKIE = "am_consent";
+const SESSION_RE = /^[A-Za-z0-9_-]{8,64}$/;
+
 /* POST /api/analytics/track — privacy-conscious first-party analytics intake.
    Records a page_view or an engagement (duration) event for a pseudonymous
    session. Nothing is recorded unless consent was explicitly given.
    Device / browser / OS are derived server-side from the User-Agent header.
    IP addresses are never stored. */
-
-import { methodGuard, parseBody, ok, clientIp, userAgent, parseCookies } from "../_lib/http.mjs";
-import { db, hasBackend } from "../_lib/db.mjs";
-import { checkRate } from "../_lib/rate-limit.mjs";
-import { classifyUA, referrerDomain, normalizePath } from "../_lib/ua.mjs";
-
-export const CONSENT_COOKIE = "am_consent";
-const SESSION_RE = /^[A-Za-z0-9_-]{8,64}$/;
-
-export default async function handler(req, res) {
+export async function track(req, res) {
   if (!methodGuard(req, res, "POST")) return;
 
   const cookies = parseCookies(req.headers.cookie || "");
@@ -98,4 +99,29 @@ export default async function handler(req, res) {
     console.error("[analytics/track]", err.message);
     return ok(res, { tracked: false });
   }
+}
+
+/* POST /api/analytics/consent — record an explicit consent decision and mirror
+   it into a cookie. A declined/withdrawn decision stops tracking entirely. */
+export async function consent(req, res) {
+  if (!methodGuard(req, res, "POST")) return;
+
+  let body;
+  try { body = await parseBody(req); } catch (_) { return fail(res, 400, "Invalid body."); }
+
+  const decision = String(body.consent || "").toLowerCase();
+  if (!["accepted", "declined"].includes(decision)) {
+    return fail(res, 422, "Consent must be 'accepted' or 'declined'.");
+  }
+
+  const secure = (req.headers["x-forwarded-proto"] || "http").split(",")[0].trim() === "https";
+  res.setHeader("Set-Cookie", serializeCookie(CONSENT_COOKIE, decision, {
+    maxAge: 60 * 60 * 24 * 365,
+    secure,
+    httpOnly: false, // readable by the consent banner script
+    sameSite: "Lax",
+    path: "/",
+  }));
+
+  return ok(res, { consent: decision });
 }

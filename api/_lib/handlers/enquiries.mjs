@@ -1,13 +1,14 @@
+/* Shared enquiry route handlers (see api/enquiries/[action].mjs). */
+
+import { methodGuard, parseBody, fail, ok, json, clientIp, userAgent } from "../http.mjs";
+import { db, hasBackend } from "../db.mjs";
+import { validateEnquiry, dedupeKey } from "../validate.mjs";
+import { keyHash, checkRate } from "../rate-limit.mjs";
+
 /* POST /api/enquiries/submit — public enquiry intake.
    Validates server-side, rate-limits, de-duplicates, persists to Supabase and
    only reports success after the database confirms the insert. */
-
-import { methodGuard, parseBody, fail, ok, json, clientIp, userAgent } from "../_lib/http.mjs";
-import { db, hasBackend } from "../_lib/db.mjs";
-import { validateEnquiry, dedupeKey } from "../_lib/validate.mjs";
-import { keyHash, checkRate } from "../_lib/rate-limit.mjs";
-
-export default async function handler(req, res) {
+export async function submit(req, res) {
   if (!methodGuard(req, res, "POST")) return;
 
   let body;
@@ -74,14 +75,14 @@ export default async function handler(req, res) {
   try {
     const { data: inserted, error } = await db()
       .from("enquiries")
-      .insert(row, { onConflict: "dedupe_key", ignoreDuplicates: true })
+      .upsert(row, { onConflict: "dedupe_key", ignoreDuplicates: true })
       .select("id, created_at")
       .maybeSingle();
 
     if (error) throw error;
 
-    // ignoreDuplicates + onConflict: when the exact duplicate already exists
-    // no row is returned -> idempotent success.
+    // upsert + ignoreDuplicates + onConflict: when the exact duplicate already
+    // exists no row is returned -> idempotent success.
     if (!inserted || !inserted.id) {
       return json(res, 200, { ok: true, accepted: true, duplicate: true, id: null });
     }

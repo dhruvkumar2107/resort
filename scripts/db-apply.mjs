@@ -23,6 +23,8 @@ const LEAD_TABLE = {
   "0001_initial.sql": "public.enquiries",
   "0002_stats_rpc.sql": "public.stats_overview",
   "0003_fix_dedupe.sql": "public.enquiries_dedupe_key_uniq",
+  // Lead is a unique CONSTRAINT (name may collide with the old index name).
+  "0004_dedupe_constraint.sql": "constraint:enquiries_dedupe_key_uniq:public.enquiries",
 };
 
 const client = new pg.Client({
@@ -38,12 +40,24 @@ let applied = 0;
 for (const file of files) {
   const lead = LEAD_TABLE[file];
   if (lead) {
-    const { rows } = await client.query(
-      "select to_regclass($1) is not null as exists_", [lead]
-    );
-    if (rows[0].exists_) {
-      console.log(`  skip  ${file}  (${lead} already exists)`);
-      continue;
+    if (lead.startsWith("constraint:")) {
+      const [, conname, conrelid] = lead.split(":");
+      const { rows } = await client.query(
+        "select count(*)::int as n from pg_constraint where conname=$1 and conrelid=$2::regclass",
+        [conname, conrelid]
+      );
+      if (rows[0].n > 0) {
+        console.log(`  skip  ${file}  (${conname} constraint exists)`);
+        continue;
+      }
+    } else {
+      const { rows } = await client.query(
+        "select to_regclass($1) is not null as exists_", [lead]
+      );
+      if (rows[0].exists_) {
+        console.log(`  skip  ${file}  (${lead} already exists)`);
+        continue;
+      }
     }
   }
   const sql = readFileSync(join(migrationsDir, file), "utf8");
