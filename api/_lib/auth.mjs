@@ -52,7 +52,9 @@ export async function readSession(req) {
       access_token: access || "",
       refresh_token: refresh || "",
     });
-    if (error || !data.session) return null;
+    if (error || !data.session) {
+      return null;
+    }
     const cookiesToSet =
       data.session.access_token === access && data.session.refresh_token === refresh
         ? []

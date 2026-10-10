@@ -167,7 +167,7 @@ export async function resetPassword(req, res) {
   if (!rate.allowed) return fail(res, 429, "Too many requests. Try again later.");
 
   try {
-    await db().auth.admin.resetPasswordForEmail(email, {
+    await db().auth.resetPasswordForEmail(email, {
       redirectTo: (process.env.SITE_URL || "https://akshaya-milan.vercel.app") + "/admin/login.html",
     });
   } catch (err) {

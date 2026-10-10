@@ -18,6 +18,17 @@ export function fail(res, status, message, extra = {}) {
 const MAX_BODY = 64 * 1024; // 64 KB
 export function parseBody(req) {
   return new Promise((resolve, reject) => {
+    // Vercel's function runtime pre-parses JSON request bodies into req.body
+    // (for an exact Content-Type: application/json), leaving the raw stream
+    // empty. Prefer the parsed value when present.
+    if (req.body !== undefined) {
+      try {
+        resolve(typeof req.body === "string" ? JSON.parse(req.body) : req.body);
+      } catch (err) {
+        reject(new Error("Invalid JSON"));
+      }
+      return;
+    }
     let size = 0;
     const chunks = [];
     req.on("data", (c) => {

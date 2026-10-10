@@ -2,7 +2,7 @@
 
 import { methodGuard, parseBody, fail, ok, safeInt } from "../http.mjs";
 import { requireAdmin } from "../auth.mjs";
-import { db } from "../db.mjs";
+import { db, statsRpc } from "../db.mjs";
 import { parseRange } from "../range.mjs";
 import { STATUSES } from "../validate.mjs";
 import { recordAudit } from "../audit.mjs";
@@ -20,14 +20,10 @@ export async function overview(req, res) {
   const { from, to } = parseRange(req.query);
 
   try {
-    const { data, error } = await db().rpc("stats_overview", {
-      src: from.toISOString(),
-      dst: to.toISOString(),
-    });
-    if (error) throw error;
+    const data = await statsRpc(from.toISOString(), to.toISOString());
     return ok(res, { stats: data, from: from.toISOString(), to: to.toISOString() });
   } catch (err) {
-    console.error("[admin/overview]", err.message);
+    console.error("[admin/overview]", err.message, err.code || "", err.status || "");
     return fail(res, 500, "Could not load statistics.");
   }
 }
@@ -121,7 +117,7 @@ export async function enquiries(req, res) {
       .select("*").eq("enquiry_id", id).order("changed_at", { ascending: false }).limit(30);
 
     const staff = await staffMap(supa);
-    return ok({
+    return ok(res, {
       enquiry: { ...enquiry, assigned_name: staff.get(enquiry.assigned_to) || null },
       history: history || [],
     });
@@ -161,7 +157,7 @@ export async function enquiries(req, res) {
   const staff = await staffMap(supa);
   const rows = (data || []).map((r) => ({ ...r, assigned_name: staff.get(r.assigned_to) || null }));
 
-  return ok({ rows, total: count || 0, page, limit, sort });
+  return ok(res, { rows, total: count || 0, page, limit, sort });
 }
 
 /* /api/admin/team — administrator management.
@@ -195,7 +191,7 @@ export async function team(req, res) {
         is_me: a.auth_user_id === ctx.user.id,
       });
     }
-    return ok({ team: rows, viewer: { role: ctx.admin.role, display_name: ctx.admin.display_name, is_owner } });
+    return ok(res, { team: rows, viewer: { role: ctx.admin.role, display_name: ctx.admin.display_name, is_owner: isOwner } });
   }
 
   let body;
@@ -222,7 +218,7 @@ export async function team(req, res) {
       });
       if (insErr) throw insErr;
       recordAudit(ctx.admin.id, "team_add", "admin_user", created.user.id, { email, role });
-      return ok({ added: created.user.id });
+      return ok(res, { added: created.user.id });
     } catch (err) {
       console.error("[team add]", err.message);
       return fail(res, 500, "Could not create the staff account.");
@@ -258,7 +254,7 @@ export async function team(req, res) {
       return fail(res, 400, error.message.includes("owner") ? "Only owners can make those changes." : "Could not update the team member.");
     }
     recordAudit(ctx.admin.id, "team_update", "admin_user", id, updates);
-    return ok({ updated });
+    return ok(res, { updated });
   }
 
   return fail(res, 422, "Unknown action.");
@@ -344,11 +340,7 @@ export async function exports(req, res) {
       }
     } else {
       // analytics export: aggregated per-day
-      const { data, error } = await supa.rpc("stats_overview", {
-        src: from.toISOString(),
-        dst: to.toISOString(),
-      });
-      if (error) throw error;
+      const data = await statsRpc(from.toISOString(), to.toISOString());
 
       const daily = (data.daily_series || []).map((d) => ({
         day: d.day,
@@ -429,7 +421,7 @@ export async function retention(req, res) {
         .from("page_views")
         .select("*", { count: "exact", head: true })
         .lt("viewed_at", threshold);
-      return ok({
+      return ok(res, {
         retention_days: currentDays,
         threshold_utc: threshold,
         expired_sessions: sessionsExpired || 0,
