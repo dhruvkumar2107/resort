@@ -14,10 +14,10 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.6",
-    "exceljs": "^4.4.0"
+    "exceljs": "^4.4.0",
+    "@vercel/edge": "^1.1.2"
   },
   "devDependencies": {
-    "@vercel/edge": "^1.1.2",
     "pg": "^8.23.1"
   }
 }

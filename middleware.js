@@ -3,8 +3,6 @@
    in the API functions (Supabase Auth + role check + RLS). An expired or forged
    cookie that passes here can never read data. */
 
-import { NextResponse } from "@vercel/edge";
-
 const ACCESS_COOKIE = "am_at";
 const PUBLIC_PATHS = new Set([
   "/admin/login.html",
@@ -15,7 +13,7 @@ export default function middleware(req) {
   const url = new URL(req.url);
   const { pathname } = url;
 
-  if (!pathname.startsWith("/admin")) return NextResponse.next();
+  if (!pathname.startsWith("/admin")) return;
 
   // Static assets the admin UI needs before login state is known.
   if (
@@ -25,7 +23,7 @@ export default function middleware(req) {
     PUBLIC_PATHS.has(pathname) ||
     pathname === "/admin"
   ) {
-    return NextResponse.next();
+    return;
   }
 
   const cookies = (req.headers.get("cookie") || "").split(";");
@@ -34,10 +32,8 @@ export default function middleware(req) {
   if (!hasToken) {
     const login = new URL("/admin/login.html", url.origin);
     login.searchParams.set("next", pathname);
-    return NextResponse.redirect(login, 302);
+    return Response.redirect(login, 302);
   }
-
-  return NextResponse.next();
 }
 
 export const config = {
