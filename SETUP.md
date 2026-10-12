@@ -60,7 +60,7 @@ Settings → Environment Variables, for Preview and Production:
 | `SUPABASE_ANON_KEY` | Optional, anon key |
 | `ADMIN_BOOTSTRAP_TOKEN` | Long random secret, e.g. `openssl rand -hex 32` |
 | `ANALYTICS_RETENTION_DAYS` | Default `180` |
-| `SITE_URL` | `https://akshaya-milan.vercel.app` |
+| `SITE_URL` | `https://www.akshayamilan.com` |
 
 For local development copy `.env.example` → `.env.local` and fill in values for `vercel dev`.
 
@@ -71,14 +71,14 @@ created via a one-time trusted server call that requires the bootstrap token **a
 `admin_users` table:
 
 ```bash
-curl -X POST https://akshaya-milan.vercel.app/api/auth/setup \
+curl -X POST https://www.akshayamilan.com/api/auth/setup \
   -H "Content-Type: application/json" \
   -H "x-bootstrap-token: <ADMIN_BOOTSTRAP_TOKEN>" \
   -d '{"email":"you@example.in","password":"<12+ char password>","display_name":"Admin"}'
 ```
 
 Expected: `{"ok":true,"message":"Owner account created."}`. Subsequent calls return 403
-(an owner already exists). Log in at `https://akshaya-milan.vercel.app/admin/login.html`.
+(an owner already exists). Log in at `https://www.akshayamilan.com/admin/login`.
 
 > Keep the bootstrap token secret. Change it in Vercel env vars after setup if you like —
 > it is no longer required once an owner exists.
@@ -93,7 +93,7 @@ Verify after deploy:
 
 ```
 GET  /                       -> 200 (public site)
-GET  /admin/login.html       -> 200
+GET  /admin/login       -> 200
 POST /api/enquiries/submit   -> 503 {"degraded":true} if env missing, later 201 on success
 ```
 
@@ -106,7 +106,7 @@ $env:SUPABASE_URL="..."; $env:SUPABASE_SERVICE_ROLE_KEY="..."; npm run test:inte
 ## 5. How do things work?
 
 ### Public enquiry submission
-`enquiry.html` (multi-step), the homepage booking form and `contact.html` submit JSON to
+`/enquiry` (multi-step), the homepage booking form and `/contact` submit JSON to
 `POST /api/enquiries/submit`. Flow: honeypot + `request_time_ms` anti-bot checks → rate limit
 (5/hour/IP) → server-side validation → de-duplication (unique `dedupe_key` from
 `sha256(phone|message)`, enforced by a UNIQUE constraint on `dedupe_key`
@@ -139,7 +139,7 @@ Authorization matrix:
 page views and engagement beacons to `/api/analytics/track`. `am_consent` records the choice;
 each visit gets a pseudonymous `am_session` (30-min sliding). Device/browser/OS are derived
 server-side from the User-Agent; raw IPs are never stored. Decline/ignore = no tracking.
-`privacy.html` explains the policy and controls. Retention purge is in the dashboard
+`/privacy` explains the policy and controls. Retention purge is in the dashboard
 Settings → Data retention.
 
 ### Exports

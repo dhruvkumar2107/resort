@@ -64,6 +64,14 @@ console.log("== Public pages wiring ==");
 const pages = [
   "index.html", "about.html", "contact.html", "enquiry.html",
   "gallery.html", "packages.html", "services.html", "venues.html", "privacy.html",
+  "open-air-wedding-venue-bangalore.html",
+  "convention-hall-bangalore.html",
+  "marriage-hall-bangalore.html",
+  "wedding-venue-bangalore.html",
+  "wedding-reception-hall-bangalore.html",
+  "engagement-venue-bangalore.html",
+  "corporate-event-venue-bangalore.html",
+  "birthday-party-venue-bangalore.html",
 ];
 for (const page of pages) {
   let html = "";
@@ -74,7 +82,7 @@ for (const page of pages) {
     continue;
   }
   if (!html.includes("assets/js/analytics.js")) fail(`${page}: missing analytics.js`);
-  if (!html.includes('href="privacy.html"')) fail(`${page}: missing privacy link`);
+  if (!html.includes('href="/privacy"')) fail(`${page}: missing privacy link`);
   ok(`wired ${page}`);
 }
 

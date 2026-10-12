@@ -73,6 +73,7 @@ body {
   overflow-x: hidden;
 }
 img { max-width: 100%; display: block; height: auto; }
+picture { display: contents; }
 svg { flex-shrink: 0; }
 a { color: var(--mud); text-decoration: none; transition: color .3s; }
 a:hover { color: var(--gold-deep); }

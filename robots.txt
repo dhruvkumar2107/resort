@@ -1,6 +1,12 @@
 User-agent: *
 Allow: /
-Disallow: /admin
-Disallow: /api
+Disallow: /admin/
+Disallow: /api/
+Disallow: /*?*utm_
+Disallow: /*?*fbclid=
 
-Sitemap: https://akshaya-milan.vercel.app/sitemap.xml
+# Block indexing of non-canonical Vercel preview URLs (the production
+# domain and its .vercel.app alias are handled with redirects + noindex
+# headers in vercel.json).
+
+Sitemap: https://www.akshayamilan.com/sitemap.xml

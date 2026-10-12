@@ -5,8 +5,8 @@
 
 const ACCESS_COOKIE = "am_at";
 const PUBLIC_PATHS = new Set([
-  "/admin/login.html",
-  "/admin/reset-password.html",
+  "/admin/login",
+  "/admin/reset-password",
 ]);
 
 export default function middleware(req) {
@@ -21,7 +21,8 @@ export default function middleware(req) {
     pathname.startsWith("/admin/js/") ||
     pathname.startsWith("/admin/img/") ||
     PUBLIC_PATHS.has(pathname) ||
-    pathname === "/admin"
+    pathname === "/admin" ||
+    pathname === "/admin/"
   ) {
     return;
   }
@@ -30,7 +31,7 @@ export default function middleware(req) {
   const hasToken = cookies.some((c) => c.trim().startsWith(ACCESS_COOKIE + "="));
 
   if (!hasToken) {
-    const login = new URL("/admin/login.html", url.origin);
+    const login = new URL("/admin/login", url.origin);
     login.searchParams.set("next", pathname);
     return Response.redirect(login, 302);
   }

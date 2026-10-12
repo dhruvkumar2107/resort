@@ -45,7 +45,7 @@
     const res = await fetch(path, Object.assign({ credentials: "same-origin" }, opts || {}));
     let data = null;
     try { data = await res.json(); } catch (e) { /* non-json */ }
-    if (res.status === 401) { window.location.replace("/admin/login.html"); throw new Error("Session expired"); }
+    if (res.status === 401) { window.location.replace("/admin/login"); throw new Error("Session expired"); }
     if (!res.ok || (data && data.ok === false && res.status >= 400)) {
       const err = new Error((data && data.error) || "Request failed (" + res.status + ")");
       err.status = res.status;
@@ -150,7 +150,7 @@
   async function boot() {
     try {
       const d = await apiGet("/api/auth/session");
-      if (!d.authed) { window.location.replace("/admin/login.html"); return; }
+      if (!d.authed) { window.location.replace("/admin/login"); return; }
       state.admin = d.admin;
       $("#who-name").textContent = d.admin.display_name;
       $("#who-role").textContent = d.admin.role;
@@ -165,7 +165,7 @@
       initDrawer();
       switchView("overview");
     } catch (e) {
-      window.location.replace("/admin/login.html");
+      window.location.replace("/admin/login");
     }
   }
 
@@ -176,7 +176,7 @@
 
   async function doLogout() {
     try { await apiPost("/api/auth/logout"); } catch (e) { /* ignore */ }
-    window.location.replace("/admin/login.html");
+    window.location.replace("/admin/login");
   }
 
   /* ==================================================================
@@ -770,10 +770,10 @@
       '<div class="card"><h3>Consent & privacy</h3>' +
       '<div class="setting-row"><div><h4>Visitor tracking</h4><p>First-party, consent-gated analytics. No IP addresses, no fingerprints, no third-party trackers. Anonymous sessions are never linked to enquiries or identities.</p></div></div>' +
       '<div class="setting-row"><div><h4>Public privacy notice</h4><p>Explains what is collected and why, with simple opt-out controls.</p></div>' +
-      '<a class="btn btn-outline btn-sm" target="_blank" href="/privacy.html">Read the notice</a></div></div>' +
+      '<a class="btn btn-outline btn-sm" target="_blank" href="/privacy">Read the notice</a></div></div>' +
       '<div class="card"><h3>Your account</h3>' +
       '<div class="setting-row"><div><h4>' + esc(state.admin.display_name) + "</h4><p>" + esc(state.admin.email) + " · role: " + esc(state.admin.role) + "</p></div>" +
-      '<a class="btn btn-outline btn-sm" href="/admin/reset-password.html">Reset password</a></div></div>';
+      '<a class="btn btn-outline btn-sm" href="/admin/reset-password">Reset password</a></div></div>';
 
     if (owner) {
       const d = $("#set-purge", el);

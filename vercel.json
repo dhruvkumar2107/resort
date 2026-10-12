@@ -2,13 +2,32 @@
   "buildCommand": "echo 'Static site - no build needed'",
   "framework": null,
   "outputDirectory": ".",
-  "rewrites": [
+  "cleanUrls": true,
+  "redirects": [
     {
-      "source": "/((?!api).*)",
-      "destination": "/$1"
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "akshaya-milan.vercel.app" }],
+      "destination": "https://www.akshayamilan.com/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "akshayamilan.com" }],
+      "destination": "https://www.akshayamilan.com/:path*",
+      "permanent": true
     }
   ],
   "headers": [
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "akshaya-milan.vercel.app" }],
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    },
     {
       "source": "/assets/(.*)",
       "headers": [

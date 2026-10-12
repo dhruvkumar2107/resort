@@ -1,47 +1,137 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
-    <loc>https://akshaya-milan.vercel.app/</loc>
-    <changefreq>monthly</changefreq>
+    <loc>https://www.akshayamilan.com/</loc>
+    <lastmod>2026-10-12</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://www.akshayamilan.com/assets/images/hero-1.jpg</image:loc>
+      <image:title>Akshaya Milan wedding and celebration venue in Bengaluru</image:title>
+    </image:image>
   </url>
   <url>
-    <loc>https://akshaya-milan.vercel.app/venues.html</loc>
+    <loc>https://www.akshayamilan.com/venues</loc>
+    <lastmod>2026-10-12</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://www.akshayamilan.com/assets/images/spaces/space-3.jpg</image:loc>
+      <image:title>Open-air wedding lawn at Akshaya Milan, Bengaluru</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.akshayamilan.com/enquiry</loc>
+    <lastmod>2026-10-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://akshaya-milan.vercel.app/services.html</loc>
+    <loc>https://www.akshayamilan.com/packages</loc>
+    <lastmod>2026-10-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://akshaya-milan.vercel.app/packages.html</loc>
+    <loc>https://www.akshayamilan.com/services</loc>
+    <lastmod>2026-10-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://akshaya-milan.vercel.app/gallery.html</loc>
+    <loc>https://www.akshayamilan.com/gallery</loc>
+    <lastmod>2026-10-12</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://www.akshayamilan.com/assets/images/gallery/gallery-20.jpg</image:loc>
+      <image:title>Baraat celebration at Akshaya Milan, Bengaluru</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.akshayamilan.com/about</loc>
+    <lastmod>2026-10-12</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.akshayamilan.com/contact</loc>
+    <lastmod>2026-10-12</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.akshayamilan.com/open-air-wedding-venue-bangalore</loc>
+    <lastmod>2026-10-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://www.akshayamilan.com/assets/images/spaces/space-3.jpg</image:loc>
+      <image:title>Open-air wedding lawn at Akshaya Milan, Bengaluru</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.akshayamilan.com/convention-hall-bangalore</loc>
+    <lastmod>2026-10-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://www.akshayamilan.com/assets/images/spaces/space-1.jpg</image:loc>
+      <image:title>Convention and banquet hall at Akshaya Milan, Bengaluru</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.akshayamilan.com/marriage-hall-bangalore</loc>
+    <lastmod>2026-10-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://www.akshayamilan.com/assets/images/spaces/space-2.jpg</image:loc>
+      <image:title>Marriage hall decor at Akshaya Milan, Bengaluru</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.akshayamilan.com/wedding-venue-bangalore</loc>
+    <lastmod>2026-10-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.akshayamilan.com/wedding-reception-hall-bangalore</loc>
+    <lastmod>2026-10-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://www.akshayamilan.com/assets/images/spaces/space-1.jpg</image:loc>
+      <image:title>Wedding reception hall at Akshaya Milan, Bengaluru</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.akshayamilan.com/engagement-venue-bangalore</loc>
+    <lastmod>2026-10-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://www.akshayamilan.com/assets/images/spaces/space-5.jpg</image:loc>
+      <image:title>Engagement hall at Akshaya Milan, Bengaluru</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.akshayamilan.com/corporate-event-venue-bangalore</loc>
+    <lastmod>2026-10-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://akshaya-milan.vercel.app/about.html</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.6</priority>
+    <loc>https://www.akshayamilan.com/birthday-party-venue-bangalore</loc>
+    <lastmod>2026-10-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://akshaya-milan.vercel.app/contact.html</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://akshaya-milan.vercel.app/enquiry.html</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://akshaya-milan.vercel.app/privacy.html</loc>
+    <loc>https://www.akshayamilan.com/privacy</loc>
+    <lastmod>2026-10-12</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>

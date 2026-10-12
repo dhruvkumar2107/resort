@@ -168,7 +168,7 @@ export async function resetPassword(req, res) {
 
   try {
     await db().auth.resetPasswordForEmail(email, {
-      redirectTo: (process.env.SITE_URL || "https://akshaya-milan.vercel.app") + "/admin/login.html",
+      redirectTo: (process.env.SITE_URL || "https://www.akshayamilan.com") + "/admin/login",
     });
   } catch (err) {
     console.error("[auth/reset-password]", err.message);

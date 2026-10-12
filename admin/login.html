@@ -32,7 +32,7 @@
       </form>
       <div class="auth-status" id="auth-status" role="alert"></div>
       <div class="auth-alt">
-        <a href="/admin/reset-password.html">Forgot your password?</a>
+        <a href="/admin/reset-password">Forgot your password?</a>
       </div>
     </div>
   </div>
@@ -46,7 +46,7 @@
       fetch("/api/auth/session", { credentials: "same-origin" })
         .then(function (r) { return r.json(); })
         .then(function (d) {
-          if (d && d.authed) window.location.replace("/admin/index.html");
+          if (d && d.authed) window.location.replace("/admin/index");
         })
         .catch(function () {});
 
@@ -75,7 +75,7 @@
               status.textContent = "Access granted — loading dashboard…";
               status.className = "auth-status ok";
               var next = new URLSearchParams(location.search).get("next");
-              window.location.replace(next && next.startsWith("/admin") ? next : "/admin/index.html");
+              window.location.replace(next && next.startsWith("/admin") ? next : "/admin/index");
             } else {
               status.textContent = out.d.error || "Invalid email or password.";
               status.className = "auth-status err";
