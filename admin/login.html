@@ -72,7 +72,7 @@
           .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
           .then(function (out) {
             if (out.ok) {
-              status.textContent = "Access granted — loading dashboard…";
+              status.textContent = "Access granted, loading dashboard…";
               status.className = "auth-status ok";
               var next = new URLSearchParams(location.search).get("next");
               window.location.replace(next && next.startsWith("/admin") ? next : "/admin/index");

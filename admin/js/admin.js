@@ -15,13 +15,13 @@
   }
 
   function fmtDate(iso) {
-    if (!iso) return "—";
+    if (!iso) return "N/A";
     const d = new Date(iso);
     if (isNaN(d.getTime())) return String(iso);
     return d.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
   }
   function fmtDateTime(iso) {
-    if (!iso) return "—";
+    if (!iso) return "N/A";
     const d = new Date(iso);
     if (isNaN(d.getTime())) return String(iso);
     return d.toLocaleString("en-IN", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
@@ -36,8 +36,8 @@
 
   const C = {
     mud: "#4a3829", mudDark: "#34261d", warm: "#674d3a",
-    gold: "#b59a63", goldLight: "#c9b27d", beige: "#e9ddc8",
-    ok: "#3f6b4f", err: "#a3402f", mute: "#6e5c4b",
+    gold: "#b99a3c", goldLight: "#cdb35c", beige: "#e9ddc8",
+    ok: "#3f6b4f", err: "#a3402f", mute: "#51483d",
   };
 
   /* ---------------- api client ---------------- */
@@ -226,7 +226,7 @@
   function activityCard(recent) {
     const rows = (recent || []).slice(0, 12).map(function (r) {
       return "<tr><td>" + esc(fmtDateTime(r.time)) + "</td><td>" + esc(r.path) + "</td>" +
-        "<td>" + esc(r.device || "—") + "</td><td class='muted'>" + esc(r.referrer || "direct") + "</td>" +
+        "<td>" + esc(r.device || "N/A") + "</td><td class='muted'>" + esc(r.referrer || "direct") + "</td>" +
         "<td class='muted'>" + esc(String(r.session_id).slice(0, 10)) + "</td></tr>";
     }).join("");
     return '<div class="card"><h3>Recent activity</h3><div class="table-wrap"><table class="am-table" style="min-width:640px">' +
@@ -403,7 +403,7 @@
 
   function loadingBox() { return '<div class="loading">Loading…</div>'; }
   function scopeError(msg) {
-    return '<div class="card"><div class="empty">Could not load this view — ' + esc(msg) + "</div></div>";
+    return '<div class="card"><div class="empty">Could not load this view, ' + esc(msg) + "</div></div>";
   }
 
   /* ==================================================================
@@ -478,12 +478,12 @@
         "<td class='muted'>" + esc(fmtDate(r.created_at)) + "</td>" +
         "<td><strong>" + esc(r.full_name) + "</strong></td>" +
         "<td><a href='tel:" + esc(r.phone) + "'>" + esc(r.phone) + "</a></td>" +
-        "<td class='muted'>" + esc(r.email || "—") + "</td>" +
-        "<td>" + esc(r.event_type || "—") + "</td>" +
-        "<td class='muted'>" + esc(r.event_date || "—") + "</td>" +
-        "<td>" + esc(r.guest_count || "—") + "</td>" +
+        "<td class='muted'>" + esc(r.email || "N/A") + "</td>" +
+        "<td>" + esc(r.event_type || "N/A") + "</td>" +
+        "<td class='muted'>" + esc(r.event_date || "N/A") + "</td>" +
+        "<td>" + esc(r.guest_count || "N/A") + "</td>" +
         '<td><span class="badge badge-' + esc(r.status) + '">' + (STATUS_LABELS[r.status] || r.status) + "</span></td>" +
-        "<td class='muted'>" + esc(r.assigned_name || "—") + "</td>" +
+        "<td class='muted'>" + esc(r.assigned_name || "N/A") + "</td>" +
         '<td><div class="row-actions"><button class="btn btn-dark btn-sm" data-open="' + esc(r.id) + '">View</button></div></td>' +
         "</tr>";
     }).join("");
@@ -537,14 +537,14 @@
     const waMsg = "Hi Akshaya Milan, following up on an enquiry from " + e.full_name + " (" + e.phone + ").";
     const historyHtml = history.map(function (h) {
       return '<div class="history-item"><div>' + (h.from_status ? "Changed from <strong>" + esc(STATUS_LABELS[h.from_status]) + "</strong> to <strong>" + esc(STATUS_LABELS[h.to_status]) + "</strong>" : "Set to <strong>" + esc(STATUS_LABELS[h.to_status]) + "</strong>") +
-        (h.note ? " — " + esc(h.note) : "") + '</div><div class="muted" style="font-size:12px">' + esc(fmtDateTime(h.changed_at)) + "</div></div>";
+        (h.note ? " · " + esc(h.note) : "") + '</div><div class="muted" style="font-size:12px">' + esc(fmtDateTime(h.changed_at)) + "</div></div>";
     }).join("");
 
     return "<h4>Customer</h4>" +
       '<dl class="kv">' +
       "<dt>Name</dt><dd>" + esc(e.full_name) + "</dd>" +
-      "<dt>Phone</dt><dd>" + esc(e.phone || "—") + "</dd>" +
-      "<dt>Email</dt><dd>" + esc(e.email || "—") + "</dd>" +
+      "<dt>Phone</dt><dd>" + esc(e.phone || "N/A") + "</dd>" +
+      "<dt>Email</dt><dd>" + esc(e.email || "N/A") + "</dd>" +
       "<dt>Submitted</dt><dd>" + esc(fmtDateTime(e.created_at)) + "</dd>" +
       "<dt>Lead source</dt><dd>" + esc(e.lead_source || "website") + "</dd>" +
       "</dl>" +
@@ -555,13 +555,13 @@
       "</div>" +
       "<h4>Event</h4>" +
       '<dl class="kv">' +
-      "<dt>Type</dt><dd>" + esc(e.event_type || "—") + "</dd>" +
-      "<dt>Event date</dt><dd>" + esc(e.event_date || "—") + "</dd>" +
-      "<dt>Guests</dt><dd>" + esc(e.guest_count || "—") + "</dd>" +
-      "<dt>Preferred space</dt><dd>" + esc(e.range || "—") + "</dd>" +
-      "<dt>Preferred time</dt><dd>" + esc(e.time || "—") + "</dd>" +
-      "<dt>Services</dt><dd>" + esc(e.services && e.services.length ? e.services.join(", ") : "—") + "</dd>" +
-      "<dt>Message</dt><dd>" + esc(e.message || "—") + "</dd>" +
+      "<dt>Type</dt><dd>" + esc(e.event_type || "N/A") + "</dd>" +
+      "<dt>Event date</dt><dd>" + esc(e.event_date || "N/A") + "</dd>" +
+      "<dt>Guests</dt><dd>" + esc(e.guest_count || "N/A") + "</dd>" +
+      "<dt>Preferred space</dt><dd>" + esc(e.range || "N/A") + "</dd>" +
+      "<dt>Preferred time</dt><dd>" + esc(e.time || "N/A") + "</dd>" +
+      "<dt>Services</dt><dd>" + esc(e.services && e.services.length ? e.services.join(", ") : "N/A") + "</dd>" +
+      "<dt>Message</dt><dd>" + esc(e.message || "N/A") + "</dd>" +
       "</dl>" +
       "<h4>Manage</h4>" +
       '<div class="field"><label for="d-status">Status</label><select id="d-status">' +
@@ -617,7 +617,7 @@
       '<button class="btn btn-gold" id="rep-enq-csv">CSV</button><button class="btn btn-gold" id="rep-enq-xlsx">Excel</button></div></div>' +
       '<div class="report-card"><div><h3>Analytics export</h3><p>Daily aggregates: page views, unique sessions, enquiries, conversions, device totals, top landing pages and referral sources for the selected period.</p></div>' +
       '<div class="report-actions"><button class="btn btn-gold" id="rep-an-csv">CSV</button><button class="btn btn-gold" id="rep-an-xlsx">Excel</button></div></div>' +
-      '<div class="card"><h3>Privacy note</h3><p style="margin:0;color:var(--am-mute);font-size:13.5px">Exports contain lead contact details you are entitled to process for responding to enquiries. Anonymous analytics contain no IP addresses, fingerprints or personal identifiers — sessions are pseudonymous and are never linked to an individual.</p></div>';
+      '<div class="card"><h3>Privacy note</h3><p style="margin:0;color:var(--am-mute);font-size:13.5px">Exports contain lead contact details you are entitled to process for responding to enquiries. Anonymous analytics contain no IP addresses, fingerprints or personal identifiers, sessions are pseudonymous and are never linked to an individual.</p></div>';
     $("#rep-enq-csv", el).addEventListener("click", function () { exportFile("enquiries", "csv"); });
     $("#rep-enq-xlsx", el).addEventListener("click", function () { exportFile("enquiries", "xlsx"); });
     $("#rep-an-csv", el).addEventListener("click", function () { exportFile("analytics", "csv"); });
@@ -680,7 +680,7 @@
       (d.team.map(function (t) {
         return "<tr>" +
           "<td><strong>" + esc(t.display_name) + "</strong>" + (t.is_me ? ' <span class="badge badge-contacted">you</span>' : "") + "</td>" +
-          "<td class='muted'>" + esc(t.email || "—") + "</td>" +
+          "<td class='muted'>" + esc(t.email || "N/A") + "</td>" +
           '<td><span class="badge badge-' + (t.role === "owner" ? "converted" : "contacted") + '">' + esc(t.role) + "</span></td>" +
           "<td>" + (t.is_active ? '<span class="badge badge-contacted">active</span>' : '<span class="badge badge-lost">inactive</span>') + "</td>" +
           "<td class='muted'>" + esc(fmtDate(t.created_at)) + "</td>" +
@@ -766,7 +766,7 @@
       '<div class="setting-row"><div><h4>Retention policy</h4><p>Anonymous page views and sessions older than <strong>' + esc(s.retention_days) + " days</strong> (before " + esc(fmtDate(s.threshold_utc)) + ") are eligible for deletion.</p></div></div>" +
       '<div class="setting-row"><div><h4>Records awaiting deletion</h4><p>' + esc(s.expired_page_views) + " page views and " + esc(s.expired_sessions) + " sessions currently exceed the retention window.</p></div>" +
       (owner ? '<button class="btn btn-danger" id="set-purge">Delete expired now</button>' : '<span class="badge badge-lost">owner only</span>') + "</div>" +
-      "<p class='chart-note'>Retention is a configurable privacy control. The default of 180 days can be tuned with the <code>ANALYTICS_RETENTION_DAYS</code> environment variable (30–7300).</p></div>" +
+      "<p class='chart-note'>Retention is a configurable privacy control. The default of 180 days can be tuned with the <code>ANALYTICS_RETENTION_DAYS</code> environment variable (30 to 7300).</p></div>" +
       '<div class="card"><h3>Consent & privacy</h3>' +
       '<div class="setting-row"><div><h4>Visitor tracking</h4><p>First-party, consent-gated analytics. No IP addresses, no fingerprints, no third-party trackers. Anonymous sessions are never linked to enquiries or identities.</p></div></div>' +
       '<div class="setting-row"><div><h4>Public privacy notice</h4><p>Explains what is collected and why, with simple opt-out controls.</p></div>' +

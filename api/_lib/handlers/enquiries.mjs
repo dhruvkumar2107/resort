@@ -93,7 +93,7 @@ export async function submit(req, res) {
       id: inserted.id,
       created_at: inserted.created_at,
       message:
-        "Thank you — your enquiry has been received. Our team will contact you within 24 hours.",
+        "Thank you, your enquiry has been received. Our team will contact you within 24 hours.",
     });
   } catch (err) {
     console.error("[enquiries/submit]", err.message);

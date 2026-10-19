@@ -181,7 +181,7 @@
   }
 
   /* ---------- Enquiry delivery (WhatsApp — no backend required) ---------- */
-  const WA_NUMBER = "919845691995";
+  const WA_NUMBER = "918747001473";
   const FIELD_LABELS = {
     name: "Name", phone: "Phone", email: "Email", city: "City",
     event_type: "Event type", date: "Event date", guests: "Guests",
@@ -351,8 +351,8 @@
         fallback(); // database unavailable -> use WhatsApp so no enquiry is lost
         return;
       }
-      let msg = "We couldn't accept your details — please review and try again.";
-      if (res.status === 429) msg = "That was a little too quick — please wait a minute and then send again.";
+      let msg = "We couldn't accept your details, please review and try again.";
+      if (res.status === 429) msg = "That was a little too quick, please wait a minute and then send again.";
       if (res.status === 422) msg = "Some details need a second look (name, phone or consent). Please check and resend.";
       showFormError(form, msg);
     } catch (err) {

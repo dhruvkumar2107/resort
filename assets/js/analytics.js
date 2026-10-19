@@ -70,14 +70,14 @@
       "#am-consent-banner{" +
       "position:fixed;left:14px;right:14px;bottom:14px;z-index:9000;" +
       "max-width:520px;margin:0 auto;background:#34261d;color:#e9ddc8;" +
-      "border:1px solid rgba(181,154,99,.45);border-radius:14px;" +
+      "border:1px solid rgba(185,154,60,.45);border-radius:14px;" +
       "box-shadow:0 14px 40px rgba(0,0,0,.28);padding:18px 20px;" +
       "font-family:Manrope,system-ui,sans-serif;font-size:13.5px;line-height:1.5;" +
       "transition:opacity .3s, transform .3s;}" +
       "#am-consent-banner p{margin:0 0 12px;}" +
       "#am-consent-banner a{color:#c9b27d;}" +
       "#am-consent-actions{display:flex;flex-wrap:wrap;gap:8px;}" +
-      ".am-consent-btn{border:1px solid #b59a63;background:#b59a63;color:#fff;" +
+      ".am-consent-btn{border:1px solid #b99a3c;background:#b99a3c;color:#fff;" +
       "border-radius:9px;padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer;}" +
       ".am-consent-btn:hover{background:#9c824a;}" +
       ".am-consent-btn.ghost{background:transparent;color:#e9ddc8;}" +
@@ -92,7 +92,7 @@
     banner.setAttribute("role", "dialog");
     banner.setAttribute("aria-live", "polite");
     banner.innerHTML =
-      "<p><strong>Help us improve.</strong> We use lightweight, first-party analytics to understand which pages are useful. We collect <em>no</em> personal data — no IP addresses, names or locations — and we never track you across other sites.</p>" +
+      "<p><strong>Help us improve.</strong> We use lightweight, first-party analytics to understand which pages are useful. We collect <em>no</em> personal data, no IP addresses, names or locations, and we never track you across other sites.</p>" +
       "<div id='am-consent-actions'>" +
       "<button type='button' class='am-consent-btn' data-decision='accepted'>Accept analytics</button>" +
       "<button type='button' class='am-consent-btn ghost' data-decision='declined'>Decline</button>" +
