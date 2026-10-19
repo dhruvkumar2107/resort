@@ -1786,3 +1786,25 @@ body.nav-open { overflow: hidden; }
 .prose a:hover { color: var(--mud-dark); }
 .prose .muted-note { font-size: .82rem; color: rgba(74,56,41,.55); margin-top: 2.4rem; }
 .prose strong { color: var(--mud-dark); }
+
+/* subtle luxury enhancements */
+:root {
+  --lux-gold: #b9a06c;
+}
+.btn, .btn-lg, .nav-cta {
+  box-shadow: 0 6px 20px rgba(185, 160, 108, 0.18);
+  transition: transform .25s ease, box-shadow .25s ease;
+}
+.btn:hover, .btn-lg:hover, .nav-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(185, 160, 108, 0.28);
+}
+.gallery-item img {
+  transition: transform .6s ease;
+}
+.gallery-item:hover img {
+  transform: scale(1.05);
+}
+.section-head h2 {
+  letter-spacing: .02em;
+}
