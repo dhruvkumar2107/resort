@@ -260,7 +260,13 @@
     <a href="/enquiry"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg> Book Date</a>
   </div>
 
-  <script src="assets/js/analytics.js" defer></script>
+    <script>
+    window.AM_TRACKING_CONFIG = {
+      GA_MEASUREMENT_ID: "G-TEST123",
+      META_PIXEL_ID: "123456789",
+      GTM_CONTAINER_ID: "",
+    };
+  </script>`n  <script src="assets/js/tracking.js" defer></script>`n  <script src="assets/js/analytics.js" defer></script>
   <script src="assets/js/main.js" defer></script>
 </body>
 </html>

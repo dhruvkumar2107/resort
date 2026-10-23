@@ -7,6 +7,26 @@
   const $ = (sel, ctx = document) => ctx.querySelector(sel);
   const $$ = (sel, ctx = document) => Array.from(ctx.querySelectorAll(sel));
 
+  function trackEvent(eventName, params) {
+    if (window.AM_Analytics && typeof window.AM_Analytics.trackEvent === "function") {
+      window.AM_Analytics.trackEvent(eventName, params);
+    }
+  }
+
+  /* ---------- Conversion tracking ---------- */
+  document.addEventListener("click", function (e) {
+    const link = e.target.closest("a");
+    if (!link) return;
+    const href = link.getAttribute("href") || "";
+    if (href.includes("wa.me") || href.includes("whatsapp.com")) {
+      trackEvent("whatsapp_click", { url: href, text: link.textContent.trim().slice(0, 100) });
+    } else if (href.startsWith("tel:")) {
+      trackEvent("phone_click", { phone: href.replace("tel:", ""), text: link.textContent.trim().slice(0, 100) });
+    } else if (href.includes("maps.google") || href.includes("goo.gl/maps")) {
+      trackEvent("directions_click", { url: href });
+    }
+  });
+
   /* ---------- Current year ---------- */
   $$("[data-year]").forEach((el) => (el.textContent = new Date().getFullYear()));
 
@@ -230,6 +250,7 @@
       success.focus();
       success.scrollIntoView({ behavior: "smooth", block: "center" });
     }
+    trackEvent("enquiry_submit", { page_path: location.pathname });
   }
 
   /* ---------- Database-backed enquiry submission (with WhatsApp fallback) ---------- */

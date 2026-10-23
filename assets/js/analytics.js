@@ -6,6 +6,7 @@
    - Shows a small consent banner; NOTHING is tracked until the visitor opts in.
    - Records consent via /api/analytics/consent and page views / engagement via
      /api/analytics/track (validated, rate-limited, derivations done server-side).
+   - Initializes GA4, Meta Pixel, GTM after consent (Consent Mode v2).
    - Never sends IP addresses, names, emails, phone numbers or fingerprints.
    ========================================================================== */
 (function () {
@@ -13,6 +14,12 @@
 
   const CONSENT_KEY = "am_consent";
   const SESSION_KEY = "am_session";
+
+  let trackingConfig = {
+    GA_MEASUREMENT_ID: "",
+    META_PIXEL_ID: "",
+    GTM_CONTAINER_ID: "",
+  };
 
   function newSession() {
     let id;
@@ -57,6 +64,14 @@
 
   function currentPath() {
     return (location.pathname || "/").slice(0, 300);
+  }
+
+  function initThirdPartyTracking() {
+    if (window.AM_Tracking) {
+      window.AM_Tracking.init(trackingConfig);
+      window.AM_Tracking.grantConsent();
+      window.AM_Tracking.trackPageView(currentPath());
+    }
   }
 
   /* ---------- consent banner ---------- */
@@ -124,9 +139,12 @@
       credentials: "same-origin",
       keepalive: true,
     }).catch(function () {
-      // Fallback cookie in case the API is unreachable.
       document.cookie = CONSENT_KEY + "=" + decision + "; path=/; max-age=" + 60 * 60 * 24 * 365 + "; SameSite=Lax";
     });
+
+    if (decision === "accepted") {
+      initThirdPartyTracking();
+    }
   }
 
   /* ---------- tracking ---------- */
@@ -136,6 +154,9 @@
   function pageView() {
     if (!session) { session = newSession(); setSessionCookie(session); }
     beacon("/api/analytics/track", { type: "page_view", session_id: session, page_path: currentPath() });
+    if (window.AM_Tracking) {
+      window.AM_Tracking.trackPageView(currentPath());
+    }
   }
 
   function engagement() {
@@ -156,10 +177,24 @@
 
   /* ---------- boot ---------- */
   window.addEventListener("load", function () {
-    if (session) setSessionCookie(session); // slide the window
+    if (session) setSessionCookie(session);
     const decision = consentIs();
-    if (decision === "accepted") pageView();
-    else if (decision === null) ensureBanner();
-    // declined -> nothing is tracked and no banner is shown again.
+    if (decision === "accepted") {
+      pageView();
+      initThirdPartyTracking();
+    } else if (decision === null) {
+      ensureBanner();
+    }
   });
+
+  window.AM_Analytics = {
+    setConfig: function (config) {
+      trackingConfig = config;
+    },
+    trackEvent: function (eventName, params) {
+      if (window.AM_Tracking) {
+        window.AM_Tracking.trackEvent(eventName, params);
+      }
+    },
+  };
 })();

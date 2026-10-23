@@ -1,8 +1,13 @@
 {
-  "buildCommand": "echo 'Static site - no build needed'",
+  "buildCommand": "node scripts/inject-tracking.mjs",
   "framework": null,
   "outputDirectory": ".",
   "cleanUrls": true,
+  "env": {
+    "GA_MEASUREMENT_ID": "@ga_measurement_id",
+    "META_PIXEL_ID": "@meta_pixel_id",
+    "GTM_CONTAINER_ID": "@gtm_container_id"
+  },
   "redirects": [
     {
       "source": "/:path*",
