@@ -8,25 +8,25 @@ import { keyHash, checkRate } from "../rate-limit.mjs";
 /* POST /api/enquiries/submit — public enquiry intake.
    Validates server-side, rate-limits, de-duplicates, persists to Supabase and
    only reports success after the database confirms the insert. */
-export async function submit(req, res) {
+export async function submit(req, res, origin) {
   if (!methodGuard(req, res, "POST")) return;
 
   let body;
   try {
     body = await parseBody(req);
   } catch (err) {
-    return fail(res, 400, "Invalid request body.");
+    return fail(res, 400, "Invalid request body.", {}, origin);
   }
 
   // Honeypot: hidden field that humans never fill.
   if (body.hp_field && String(body.hp_field).trim() !== "") {
-    return ok(res, { accepted: false, reason: "spam", message: "Enquiry could not be submitted." });
+    return ok(res, { accepted: false, reason: "spam", message: "Enquiry could not be submitted." }, origin);
   }
 
   // Without a configured database the site degrades gracefully: the client
   // falls back to the WhatsApp channel so enquiries are never silently lost.
   if (!hasBackend()) {
-    return json(res, 503, { ok: false, degraded: true, error: "Backend not configured." });
+    return json(res, 503, { ok: false, degraded: true, error: "Backend not configured." }, origin);
   }
 
   const ip = clientIp(req);
@@ -37,12 +37,12 @@ export async function submit(req, res) {
       ok: false,
       error: "Too many enquiries. Please wait a minute and try again.",
       retry_after: Math.ceil(rate.retryAfter / 1000),
-    });
+    }, origin);
   }
 
   const result = validateEnquiry(body);
   if (!result.ok) {
-    return json(res, 422, { ok: false, errors: result.errors });
+    return json(res, 422, { ok: false, errors: result.errors }, origin);
   }
 
   const d = result.data;
@@ -69,7 +69,7 @@ export async function submit(req, res) {
     return json(res, 422, {
       ok: false,
       errors: { consent: "Please agree to be contacted before submitting." },
-    });
+    }, origin);
   }
 
   try {
@@ -84,7 +84,7 @@ export async function submit(req, res) {
     // upsert + ignoreDuplicates + onConflict: when the exact duplicate already
     // exists no row is returned -> idempotent success.
     if (!inserted || !inserted.id) {
-      return json(res, 200, { ok: true, accepted: true, duplicate: true, id: null });
+      return json(res, 200, { ok: true, accepted: true, duplicate: true, id: null }, origin);
     }
 
     return json(res, 201, {
@@ -94,13 +94,13 @@ export async function submit(req, res) {
       created_at: inserted.created_at,
       message:
         "Thank you, your enquiry has been received. Our team will contact you within 24 hours.",
-    });
+    }, origin);
   } catch (err) {
     console.error("[enquiries/submit]", err.message);
     return json(res, 500, {
       ok: false,
       degraded: true,
       error: "We could not save your enquiry right now. Please use WhatsApp or call us.",
-    });
+    }, origin);
   }
 }

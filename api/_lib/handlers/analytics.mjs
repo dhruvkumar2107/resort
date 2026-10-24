@@ -13,29 +13,29 @@ const SESSION_RE = /^[A-Za-z0-9_-]{8,64}$/;
    session. Nothing is recorded unless consent was explicitly given.
    Device / browser / OS are derived server-side from the User-Agent header.
    IP addresses are never stored. */
-export async function track(req, res) {
+export async function track(req, res, origin) {
   if (!methodGuard(req, res, "POST")) return;
 
   const cookies = parseCookies(req.headers.cookie || "");
   const consent = cookies[CONSENT_COOKIE];
   if (consent !== "accepted") {
     // No consent -> short-circuit without touching analytics tables.
-    return ok(res, { tracked: false, reason: "no-consent" });
+    return ok(res, { tracked: false, reason: "no-consent" }, origin);
   }
 
-  if (!hasBackend()) return ok(res, { tracked: false, reason: "backend-unavailable" });
+  if (!hasBackend()) return ok(res, { tracked: false, reason: "backend-unavailable" }, origin);
 
   let body;
-  try { body = await parseBody(req); } catch (_) { return ok(res, { tracked: false }); }
+  try { body = await parseBody(req); } catch (_) { return ok(res, { tracked: false }, origin); }
 
   const sessionId = typeof body.session_id === "string" ? body.session_id : "";
-  if (!SESSION_RE.test(sessionId)) return ok(res, { tracked: false });
+  if (!SESSION_RE.test(sessionId)) return ok(res, { tracked: false }, origin);
 
   const path = normalizePath(body.page_path || "", "/");
-  if (!path) return ok(res, { tracked: false });
+  if (!path) return ok(res, { tracked: false }, origin);
 
   const rate = await checkRate("track", clientIp(req), userAgent(req));
-  if (!rate.allowed) return ok(res, { tracked: false, reason: "rate-limited" });
+  if (!rate.allowed) return ok(res, { tracked: false, reason: "rate-limited" }, origin);
 
   const { device, browser, os } = classifyUA(userAgent(req));
   const referrer = referrerDomain(req.headers["referer"]);
@@ -77,7 +77,7 @@ export async function track(req, res) {
         viewed_at: now,
         referrer_domain: referrer,
       });
-      return ok(res, { tracked: true });
+      return ok(res, { tracked: true }, origin);
     }
 
     // engagement -> attach duration to the latest page view for this session/path
@@ -94,24 +94,24 @@ export async function track(req, res) {
     if (latest && latest[0] && dur !== null) {
       await supa.from("page_views").update({ engagement_duration_seconds: dur }).eq("id", latest[0].id);
     }
-    return ok(res, { tracked: true });
+    return ok(res, { tracked: true }, origin);
   } catch (err) {
     console.error("[analytics/track]", err.message);
-    return ok(res, { tracked: false });
+    return ok(res, { tracked: false }, origin);
   }
 }
 
 /* POST /api/analytics/consent — record an explicit consent decision and mirror
    it into a cookie. A declined/withdrawn decision stops tracking entirely. */
-export async function consent(req, res) {
+export async function consent(req, res, origin) {
   if (!methodGuard(req, res, "POST")) return;
 
   let body;
-  try { body = await parseBody(req); } catch (_) { return fail(res, 400, "Invalid body."); }
+  try { body = await parseBody(req); } catch (_) { return fail(res, 400, "Invalid body.", {}, origin); }
 
   const decision = String(body.consent || "").toLowerCase();
   if (!["accepted", "declined"].includes(decision)) {
-    return fail(res, 422, "Consent must be 'accepted' or 'declined'.");
+    return fail(res, 422, "Consent must be 'accepted' or 'declined'.", {}, origin);
   }
 
   const secure = (req.headers["x-forwarded-proto"] || "http").split(",")[0].trim() === "https";
@@ -123,5 +123,5 @@ export async function consent(req, res) {
     path: "/",
   }));
 
-  return ok(res, { consent: decision });
+  return ok(res, { consent: decision }, origin);
 }

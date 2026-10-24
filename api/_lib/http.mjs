@@ -1,18 +1,32 @@
 /* HTTP plumbing shared by all API routes. */
 
-export function json(res, status, data) {
+export function json(res, status, data, origin) {
   res.statusCode = status;
   res.setHeader("Content-Type", "application/json; charset=utf-8");
   res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
+  res.setHeader("Access-Control-Allow-Origin", origin || "https://www.akshayamilan.com");
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
   res.end(JSON.stringify(data));
 }
 
-export function ok(res, data) {
-  return json(res, 200, { ok: true, ...data });
+export function ok(res, data, origin) {
+  return json(res, 200, { ok: true, ...data }, origin);
 }
 
-export function fail(res, status, message, extra = {}) {
-  return json(res, status, { ok: false, error: message, ...extra });
+export function fail(res, status, message, extra = {}, origin) {
+  return json(res, status, { ok: false, error: message, ...extra }, origin);
+}
+
+export function corsPreflight(res, origin) {
+  res.statusCode = 204;
+  res.setHeader("Access-Control-Allow-Origin", origin || "https://www.akshayamilan.com");
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  res.setHeader("Access-Control-Max-Age", "86400");
+  res.end();
 }
 
 const MAX_BODY = 64 * 1024; // 64 KB

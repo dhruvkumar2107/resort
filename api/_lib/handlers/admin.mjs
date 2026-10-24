@@ -11,20 +11,20 @@ import { validateEmail, validPassword, validDisplayName } from "../validate-admi
 
 /* GET /api/admin/overview — dashboard statistics delivered by the Postgres
    stats_overview RPC. Real database values, never hardcoded. */
-export async function overview(req, res) {
+export async function overview(req, res, origin) {
   if (!methodGuard(req, res, "GET")) return;
 
   const ctx = await requireAdmin(req);
-  if (!ctx) return fail(res, 401, "Authentication required.");
+  if (!ctx) return fail(res, 401, "Authentication required.", {}, origin);
 
   const { from, to } = parseRange(req.query);
 
   try {
     const data = await statsRpc(from.toISOString(), to.toISOString());
-    return ok(res, { stats: data, from: from.toISOString(), to: to.toISOString() });
+    return ok(res, { stats: data, from: from.toISOString(), to: to.toISOString() }, origin);
   } catch (err) {
     console.error("[admin/overview]", err.message, err.code || "", err.status || "");
-    return fail(res, 500, "Could not load statistics.");
+    return fail(res, 500, "Could not load statistics.", {}, origin);
   }
 }
 
@@ -41,28 +41,28 @@ async function staffMap(supa) {
    GET  ?id=           -> single enquiry + status history
         ?search=&status=&event_type=&from=&to=&sort=&page=&limit= -> table rows
    POST {id, status?, internal_notes?, assigned_to?, note?} -> update lead */
-export async function enquiries(req, res) {
+export async function enquiries(req, res, origin) {
   if (!methodGuard(req, res, "GET", "POST")) return;
 
   const ctx = await requireAdmin(req);
-  if (!ctx) return fail(res, 401, "Authentication required.");
+  if (!ctx) return fail(res, 401, "Authentication required.", {}, origin);
   const supa = db();
 
   if (req.method === "POST") {
     let body;
-    try { body = await parseBody(req); } catch (_) { return fail(res, 400, "Invalid body."); }
+    try { body = await parseBody(req); } catch (_) { return fail(res, 400, "Invalid body.", {}, origin); }
 
     const id = String(body.id || "");
-    if (!id) return fail(res, 422, "Enquiry id is required.");
+    if (!id) return fail(res, 422, "Enquiry id is required.", {}, origin);
 
     const { data: existing } = await supa.from("enquiries").select("*").eq("id", id).maybeSingle();
-    if (!existing) return fail(res, 404, "Enquiry not found.");
+    if (!existing) return fail(res, 404, "Enquiry not found.", {}, origin);
 
     const updates = {};
     let toStatus = null;
 
     if (body.status !== undefined) {
-      if (!STATUSES.includes(body.status)) return fail(res, 422, "Invalid status.");
+      if (!STATUSES.includes(body.status)) return fail(res, 422, "Invalid status.", {}, origin);
       updates.status = body.status;
       toStatus = body.status; // history recorded below
     }
@@ -76,17 +76,17 @@ export async function enquiries(req, res) {
         // verify the target is a real auth user (avoid bad references)
         const { data: target } = await supa.from("admin_users")
           .select("auth_user_id").eq("auth_user_id", body.assigned_to).maybeSingle();
-        if (!target) return fail(res, 422, "Unknown staff member.");
+        if (!target) return fail(res, 422, "Unknown staff member.", {}, origin);
         updates.assigned_to = body.assigned_to;
       }
     }
 
-    if (Object.keys(updates).length === 0) return fail(res, 422, "Nothing to update.");
+    if (Object.keys(updates).length === 0) return fail(res, 422, "Nothing to update.", {}, origin);
 
     updates.updated_at = new Date().toISOString();
     const { data: updated, error } = await supa
       .from("enquiries").update(updates).eq("id", id).select("*").single();
-    if (error) { console.error("[enquiries update]", error.message); return fail(res, 500, "Could not update enquiry."); }
+    if (error) { console.error("[enquiries update]", error.message); return fail(res, 500, "Could not update enquiry.", {}, origin); }
 
     // Status history + audit (best effort).
     if (toStatus && toStatus !== existing.status) {
@@ -101,17 +101,17 @@ export async function enquiries(req, res) {
     }
     recordAudit(ctx.admin.id, "enquiry_update", "enquiry", id, { status: toStatus, assigned_to: updates.assigned_to ?? undefined });
 
-    return ok(res, { enquiry: updated });
+    return ok(res, { enquiry: updated }, origin);
   }
 
   // ---- GET ----
   const id = req.query.id;
   if (id) {
-    if (typeof id !== "string" || !/^[0-9a-f-]{36}$/i.test(id)) return fail(res, 422, "Invalid id.");
+    if (typeof id !== "string" || !/^[0-9a-f-]{36}$/i.test(id)) return fail(res, 422, "Invalid id.", {}, origin);
     const { data: enquiry, error } = await supa
       .from("enquiries").select("*").eq("id", id).maybeSingle();
-    if (error) return fail(res, 500, "Could not load enquiry.");
-    if (!enquiry) return fail(res, 404, "Enquiry not found.");
+    if (error) return fail(res, 500, "Could not load enquiry.", {}, origin);
+    if (!enquiry) return fail(res, 404, "Enquiry not found.", {}, origin);
 
     const { data: history } = await supa.from("enquiry_status_history")
       .select("*").eq("enquiry_id", id).order("changed_at", { ascending: false }).limit(30);
@@ -120,7 +120,7 @@ export async function enquiries(req, res) {
     return ok(res, {
       enquiry: { ...enquiry, assigned_name: staff.get(enquiry.assigned_to) || null },
       history: history || [],
-    });
+    }, origin);
   }
 
   // ---- list ----
@@ -152,30 +152,30 @@ export async function enquiries(req, res) {
   query = query.range((page - 1) * limit, page * limit - 1);
 
   const { data, count, error } = await query;
-  if (error) { console.error("[enquiries list]", error.message); return fail(res, 500, "Could not load enquiries."); }
+  if (error) { console.error("[enquiries list]", error.message); return fail(res, 500, "Could not load enquiries.", {}, origin); }
 
   const staff = await staffMap(supa);
   const rows = (data || []).map((r) => ({ ...r, assigned_name: staff.get(r.assigned_to) || null }));
 
-  return ok(res, { rows, total: count || 0, page, limit, sort });
+  return ok(res, { rows, total: count || 0, page, limit, sort }, origin);
 }
 
 /* /api/admin/team — administrator management.
    GET             -> list admins (name, email, role, active)
    POST {action:add}   {display_name,email,password,role}  (owner only)
    POST {action:update}{id, display_name?, role?, is_active?}  (role/is_active: owner only) */
-export async function team(req, res) {
+export async function team(req, res, origin) {
   if (!methodGuard(req, res, "GET", "POST")) return;
 
   const ctx = await requireAdmin(req);
-  if (!ctx) return fail(res, 401, "Authentication required.");
+  if (!ctx) return fail(res, 401, "Authentication required.", {}, origin);
   const supa = db();
   const isOwner = ctx.admin.role === "owner";
 
   if (req.method === "GET") {
     const { data: admins, error } = await supa
       .from("admin_users").select("*").order("created_at", { ascending: true });
-    if (error) return fail(res, 500, "Could not load the team.");
+    if (error) return fail(res, 500, "Could not load the team.", {}, origin);
 
     const rows = [];
     for (const a of admins || []) {
@@ -191,21 +191,21 @@ export async function team(req, res) {
         is_me: a.auth_user_id === ctx.user.id,
       });
     }
-    return ok(res, { team: rows, viewer: { role: ctx.admin.role, display_name: ctx.admin.display_name, is_owner: isOwner } });
+    return ok(res, { team: rows, viewer: { role: ctx.admin.role, display_name: ctx.admin.display_name, is_owner: isOwner } }, origin);
   }
 
   let body;
-  try { body = await parseBody(req); } catch (_) { return fail(res, 400, "Invalid body."); }
+  try { body = await parseBody(req); } catch (_) { return fail(res, 400, "Invalid body.", {}, origin); }
 
   if (body.action === "add") {
-    if (!isOwner) return fail(res, 403, "Only owners can add team members.");
+    if (!isOwner) return fail(res, 403, "Only owners can add team members.", {}, origin);
     const email = String(body.email || "").trim().toLowerCase();
     const display_name = String(body.display_name || "").trim();
     const password = String(body.password || "");
     const role = body.role === "owner" ? "owner" : "staff";
-    if (!validateEmail(email)) return fail(res, 422, "A valid email is required.");
-    if (!validDisplayName(display_name)) return fail(res, 422, "Display name must be 2-80 characters.");
-    if (!validPassword(password)) return fail(res, 422, "Password must be at least 10 characters.");
+    if (!validateEmail(email)) return fail(res, 422, "A valid email is required.", {}, origin);
+    if (!validDisplayName(display_name)) return fail(res, 422, "Display name must be 2-80 characters.", {}, origin);
+    if (!validPassword(password)) return fail(res, 422, "Password must be at least 10 characters.", {}, origin);
 
     try {
       const { data: created, error } = await supa.auth.admin.createUser({
@@ -218,46 +218,46 @@ export async function team(req, res) {
       });
       if (insErr) throw insErr;
       recordAudit(ctx.admin.id, "team_add", "admin_user", created.user.id, { email, role });
-      return ok(res, { added: created.user.id });
+      return ok(res, { added: created.user.id }, origin);
     } catch (err) {
       console.error("[team add]", err.message);
-      return fail(res, 500, "Could not create the staff account.");
+      return fail(res, 500, "Could not create the staff account.", {}, origin);
     }
   }
 
   if (body.action === "update") {
     const id = String(body.id || "");
-    if (!id) return fail(res, 422, "admin id is required.");
+    if (!id) return fail(res, 422, "admin id is required.", {}, origin);
     const { data: target } = await supa.from("admin_users").select("*").eq("id", id).maybeSingle();
-    if (!target) return fail(res, 404, "Team member not found.");
+    if (!target) return fail(res, 404, "Team member not found.", {}, origin);
 
     const updates = {};
     if (body.display_name !== undefined) {
-      if (!validDisplayName(body.display_name)) return fail(res, 422, "Invalid display name.");
+      if (!validDisplayName(body.display_name)) return fail(res, 422, "Invalid display name.", {}, origin);
       updates.display_name = String(body.display_name).trim();
     }
     if (body.role !== undefined) {
-      if (!["owner", "staff"].includes(body.role)) return fail(res, 422, "Invalid role.");
-      if (!isOwner) return fail(res, 403, "Only owners can change roles.");
+      if (!["owner", "staff"].includes(body.role)) return fail(res, 422, "Invalid role.", {}, origin);
+      if (!isOwner) return fail(res, 403, "Only owners can change roles.", {}, origin);
       updates.role = body.role;
     }
     if (body.is_active !== undefined) {
-      if (!isOwner) return fail(res, 403, "Only owners can activate/deactivate team members.");
+      if (!isOwner) return fail(res, 403, "Only owners can activate/deactivate team members.", {}, origin);
       updates.is_active = body.is_active === true || body.is_active === "true";
     }
-    if (Object.keys(updates).length === 0) return fail(res, 422, "Nothing to update.");
+    if (Object.keys(updates).length === 0) return fail(res, 422, "Nothing to update.", {}, origin);
 
     const { data: updated, error } = await supa
       .from("admin_users").update(updates).eq("id", id).select("*").single();
     if (error) {
       console.error("[team update]", error.message);
-      return fail(res, 400, error.message.includes("owner") ? "Only owners can make those changes." : "Could not update the team member.");
+      return fail(res, 400, error.message.includes("owner") ? "Only owners can make those changes." : "Could not update the team member.", {}, origin);
     }
     recordAudit(ctx.admin.id, "team_update", "admin_user", id, updates);
-    return ok(res, { updated });
+    return ok(res, { updated }, origin);
   }
 
-  return fail(res, 422, "Unknown action.");
+  return fail(res, 422, "Unknown action.", {}, origin);
 }
 
 const EXPORT_COLUMNS = {
@@ -295,11 +295,11 @@ const EXPORT_COLUMNS = {
    kind=enquiries|analytics  format=csv|xlsx
    Enquiry export honors date/status/event_type filters. Internal notes are only
    ever included when the exporting administrator is an owner. */
-export async function exports(req, res) {
+export async function exports(req, res, origin) {
   if (!methodGuard(req, res, "GET")) return;
 
   const ctx = await requireAdmin(req);
-  if (!ctx) return fail(res, 401, "Authentication required.");
+  if (!ctx) return fail(res, 401, "Authentication required.", {}, origin);
 
   const kind = req.query.kind === "analytics" ? "analytics" : "enquiries";
   const format = req.query.format === "xlsx" ? "xlsx" : "csv";
@@ -387,7 +387,7 @@ export async function exports(req, res) {
     return sendExport(res, { buffer, mime, filename });
   } catch (err) {
     console.error("[admin/exports]", err.message);
-    return fail(res, 500, "Could not generate the export.");
+    return fail(res, 500, "Could not generate the export.", {}, origin);
   }
 }
 
@@ -400,12 +400,12 @@ function formatDate(value) {
 /* /api/admin/retention — analytics retention policy.
    GET          -> current threshold + expired record counts (dry run)
    POST {days}  -> purge page_views and visitor_sessions older than N days
-                   (owner only) */
-export async function retention(req, res) {
+                    (owner only) */
+export async function retention(req, res, origin) {
   if (!methodGuard(req, res, "GET", "POST")) return;
 
   const ctx = await requireAdmin(req);
-  if (!ctx) return fail(res, 401, "Authentication required.");
+  if (!ctx) return fail(res, 401, "Authentication required.", {}, origin);
 
   const currentDays = retentionThreshold();
   const threshold = new Date(Date.now() - currentDays * 86400000).toISOString();
@@ -426,19 +426,19 @@ export async function retention(req, res) {
         threshold_utc: threshold,
         expired_sessions: sessionsExpired || 0,
         expired_page_views: pageViewsExpired || 0,
-      });
+      }, origin);
     } catch (err) {
-      return fail(res, 500, "Could not read retention data.");
+      return fail(res, 500, "Could not read retention data.", {}, origin);
     }
   }
 
   // POST — purge (owner only by default; allow owner+staff per config)
-  if (ctx.admin.role !== "owner") return fail(res, 403, "Only owners can run retention purges.");
+  if (ctx.admin.role !== "owner") return fail(res, 403, "Only owners can run retention purges.", {}, origin);
 
   let body;
-  try { body = await parseBody(req); } catch (_) { return fail(res, 400, "Invalid body."); }
+  try { body = await parseBody(req); } catch (_) { return fail(res, 400, "Invalid body.", {}, origin); }
   const days = safeInt(body.days, currentDays, 30, 7300);
-  if (days < 30 || days > 7300) return fail(res, 422, "Retention must be between 30 and 7300 days.");
+  if (days < 30 || days > 7300) return fail(res, 422, "Retention must be between 30 and 7300 days.", {}, origin);
   const cut = new Date(Date.now() - days * 86400000).toISOString();
 
   try {
@@ -447,10 +447,10 @@ export async function retention(req, res) {
     await supa.from("submission_rate_limits").delete().lte("expires_at", new Date().toISOString()).catch(() => {});
 
     recordAudit(ctx.admin.id, "retention_purge", "analytics", null, { days, deleted_page_views: d1.count, deleted_sessions: d2.count });
-    return ok({ days, deleted_page_views: d1.count || 0, deleted_sessions: d2.count || 0 });
+    return ok(res, { days, deleted_page_views: d1.count || 0, deleted_sessions: d2.count || 0 }, origin);
   } catch (err) {
     console.error("[admin/retention]", err.message);
-    return fail(res, 500, "Retention purge failed.");
+    return fail(res, 500, "Retention purge failed.", {}, origin);
   }
 }
 
