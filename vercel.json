@@ -4,9 +4,9 @@
   "outputDirectory": ".",
   "cleanUrls": true,
   "env": {
-    "GA_MEASUREMENT_ID": "@ga_measurement_id",
-    "META_PIXEL_ID": "@meta_pixel_id",
-    "GTM_CONTAINER_ID": "@gtm_container_id"
+    "GA_MEASUREMENT_ID": "G-TDFWJELM5B",
+    "META_PIXEL_ID": "",
+    "GTM_CONTAINER_ID": ""
   },
   "redirects": [
     {
