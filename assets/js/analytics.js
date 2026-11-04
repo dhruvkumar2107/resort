@@ -68,9 +68,8 @@
 
   function initThirdPartyTracking() {
     if (window.AM_Tracking) {
-      window.AM_Tracking.init(trackingConfig);
+      window.AM_Tracking.init(window.AM_TRACKING_CONFIG || trackingConfig);
       window.AM_Tracking.grantConsent();
-      window.AM_Tracking.trackPageView(currentPath());
     }
   }
 
@@ -154,9 +153,6 @@
   function pageView() {
     if (!session) { session = newSession(); setSessionCookie(session); }
     beacon("/api/analytics/track", { type: "page_view", session_id: session, page_path: currentPath() });
-    if (window.AM_Tracking) {
-      window.AM_Tracking.trackPageView(currentPath());
-    }
   }
 
   function engagement() {

@@ -1,53 +1,48 @@
 #!/usr/bin/env node
 /* ==========================================================================
-   Build script: inject tracking IDs from environment variables into HTML files
-   Run during Vercel build (vercel.json -> buildCommand)
+   Build script: inject tracking IDs from environment variables into HTML files.
+   Run during Vercel build (vercel.json -> buildCommand).
+
+   The HTML files already contain a working GA4 ID, so this is optional: when
+   GA_MEASUREMENT_ID / META_PIXEL_ID / GTM_CONTAINER_ID are set (and valid) they
+   override what is committed; when unset, the files are left untouched.
    ========================================================================== */
 
 import fs from "fs";
 import path from "path";
 
-const GA_MEASUREMENT_ID = process.env.GA_MEASUREMENT_ID || "";
-const META_PIXEL_ID = process.env.META_PIXEL_ID || "";
-const GTM_CONTAINER_ID = process.env.GTM_CONTAINER_ID || "";
+const valid = (v, re) => (re.test(v || "") ? v : "");
+const GA_MEASUREMENT_ID = valid(process.env.GA_MEASUREMENT_ID, /^G-[A-Z0-9]+$/);
+const META_PIXEL_ID = valid(process.env.META_PIXEL_ID, /^\d+$/);
+const GTM_CONTAINER_ID = valid(process.env.GTM_CONTAINER_ID, /^GTM-[A-Z0-9]+$/);
 
-const htmlDir = path.join(process.cwd());
-const adminDir = path.join(process.cwd(), "admin");
+function inject(filePath) {
+  const before = fs.readFileSync(filePath, "utf8");
+  let content = before;
 
-function injectTrackingIds(filePath) {
-  let content = fs.readFileSync(filePath, "utf8");
+  if (GA_MEASUREMENT_ID) {
+    content = content
+      .replace(/(googletagmanager\.com\/gtag\/js\?id=)G-[A-Z0-9]+/g, `$1${GA_MEASUREMENT_ID}`)
+      .replace(/(gtag\('config', ')G-[A-Z0-9]+(')/g, `$1${GA_MEASUREMENT_ID}$2`)
+      .replace(/(GA_MEASUREMENT_ID: ")[^"]*(")/g, `$1${GA_MEASUREMENT_ID}$2`);
+  }
+  if (META_PIXEL_ID) content = content.replace(/(META_PIXEL_ID: ")[^"]*(")/g, `$1${META_PIXEL_ID}$2`);
+  if (GTM_CONTAINER_ID) content = content.replace(/(GTM_CONTAINER_ID: ")[^"]*(")/g, `$1${GTM_CONTAINER_ID}$2`);
 
-  const configBlock = `  <script>
-    window.AM_TRACKING_CONFIG = {
-      GA_MEASUREMENT_ID: "${GA_MEASUREMENT_ID}",
-      META_PIXEL_ID: "${META_PIXEL_ID}",
-      GTM_CONTAINER_ID: "${GTM_CONTAINER_ID}",
-    };
-  </script>`;
-
-  // Replace both placeholder formats: literal \n and actual newlines
-  // Pattern matches the script tag with GA_MEASUREMENT_ID_PLACEHOLDER
-  content = content.replace(
-    /<script>[^<]*GA_MEASUREMENT_ID_PLACEHOLDER[\s\S]*?<\/script>/,
-    configBlock
-  );
-
-  fs.writeFileSync(filePath, content, "utf8");
-  console.log(`Injected tracking IDs into ${path.basename(filePath)}`);
-}
-
-function processDir(dir) {
-  if (!fs.existsSync(dir)) return;
-  const files = fs.readdirSync(dir).filter((f) => f.endsWith(".html"));
-  files.forEach((f) => injectTrackingIds(path.join(dir, f)));
+  if (content !== before) {
+    fs.writeFileSync(filePath, content, "utf8");
+    console.log(`Injected tracking IDs into ${path.relative(process.cwd(), filePath)}`);
+  }
 }
 
 console.log("Injecting tracking IDs...");
-console.log(`GA_MEASUREMENT_ID: ${GA_MEASUREMENT_ID || "(not set)"}`);
+console.log(`GA_MEASUREMENT_ID: ${GA_MEASUREMENT_ID || "(not set, keeping committed value)"}`);
 console.log(`META_PIXEL_ID: ${META_PIXEL_ID || "(not set)"}`);
 console.log(`GTM_CONTAINER_ID: ${GTM_CONTAINER_ID || "(not set)"}`);
 
-processDir(htmlDir);
-processDir(adminDir);
+// Public pages only; admin pages are intentionally not tracked.
+fs.readdirSync(process.cwd())
+  .filter((f) => f.endsWith(".html"))
+  .forEach((f) => inject(path.join(process.cwd(), f)));
 
 console.log("Done.");

@@ -16,9 +16,11 @@
 
   function init(config) {
     if (initialized) return;
-    CONFIG.GA_MEASUREMENT_ID = config.GA_MEASUREMENT_ID || "";
-    CONFIG.META_PIXEL_ID = config.META_PIXEL_ID || "";
-    CONFIG.GTM_CONTAINER_ID = config.GTM_CONTAINER_ID || "";
+    config = config || {};
+    // Ignore empty values and un-replaced placeholders.
+    CONFIG.GA_MEASUREMENT_ID = /^G-[A-Z0-9]+$/.test(config.GA_MEASUREMENT_ID || "") ? config.GA_MEASUREMENT_ID : "";
+    CONFIG.META_PIXEL_ID = /^d+$/.test(config.META_PIXEL_ID || "") ? config.META_PIXEL_ID : "";
+    CONFIG.GTM_CONTAINER_ID = /^GTM-[A-Z0-9]+$/.test(config.GTM_CONTAINER_ID || "") ? config.GTM_CONTAINER_ID : "";
     initialized = true;
 
     if (CONFIG.GTM_CONTAINER_ID) {
@@ -53,6 +55,9 @@
   }
 
   function loadGA4() {
+    // The gtag snippet in each page's <head> already loads GA4 and sets the
+    // default consent state; don't load it a second time.
+    if (typeof window.gtag === "function") return;
     const id = CONFIG.GA_MEASUREMENT_ID;
     window.dataLayer = window.dataLayer || [];
     function gtag() {
@@ -60,14 +65,13 @@
     }
     window.gtag = gtag;
     gtag("js", new Date());
-    gtag("config", id, { send_page_view: false });
+    setDefaultConsent();
+    gtag("config", id);
 
     const script = document.createElement("script");
     script.async = true;
     script.src = "https://www.googletagmanager.com/gtag/js?id=" + id;
     document.head.appendChild(script);
-
-    setDefaultConsent();
   }
 
   function loadMetaPixel() {
@@ -120,9 +124,6 @@
       });
     }
 
-    if (CONFIG.GA_MEASUREMENT_ID && window.gtag) {
-      window.gtag("config", CONFIG.GA_MEASUREMENT_ID, { send_page_view: true });
-    }
 
     if (CONFIG.META_PIXEL_ID && window.fbq) {
       fbq("consent", "grant");
@@ -141,16 +142,19 @@
         directions_click: "Contact",
         page_view: "PageView",
       };
-      const fbEvent = fbEventMap[eventName] || "CustomEvent";
-      fbq("trackCustom", fbEvent, params);
+      const fbEvent = fbEventMap[eventName];
+      if (fbEvent) fbq("track", fbEvent, params);
+      else fbq("trackCustom", eventName, params);
     }
   }
 
+  // GA4 page views are sent automatically by the <head> gtag config, and the
+  // Meta Pixel sends PageView on load. Only call this for virtual navigations.
   function trackPageView(path) {
-    if (window.gtag) {
-      window.gtag("config", CONFIG.GA_MEASUREMENT_ID, {
+    if (window.gtag && CONFIG.GA_MEASUREMENT_ID) {
+      window.gtag("event", "page_view", {
         page_path: path,
-        send_page_view: true,
+        page_location: location.origin + path,
       });
     }
     if (window.fbq) {

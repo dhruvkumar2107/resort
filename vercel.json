@@ -3,10 +3,12 @@
   "framework": null,
   "outputDirectory": ".",
   "cleanUrls": true,
-  "env": {
-    "GA_MEASUREMENT_ID": "G-TDFWJELM5B",
-    "META_PIXEL_ID": "",
-    "GTM_CONTAINER_ID": ""
+  "build": {
+    "env": {
+      "GA_MEASUREMENT_ID": "G-TDFWJELM5B",
+      "META_PIXEL_ID": "",
+      "GTM_CONTAINER_ID": ""
+    }
   },
   "redirects": [
     {
